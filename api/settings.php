@@ -14,7 +14,9 @@ $defaults = [
     'author_linkedin' => 'https://www.linkedin.com/in/anya-ganger-410069234/',
     'footer_linkedin' => 'https://www.linkedin.com/in/anya-ganger-410069234/',
     'footer_book_url' => 'https://anya.ganger.com/book/',
-    'contact_email' => 'ganger@wharton.upenn.edu'
+    'contact_email' => 'ganger@wharton.upenn.edu',
+    'font_body' => 'Inter',
+    'font_heading' => 'Playfair Display'
 ];
 
 try {

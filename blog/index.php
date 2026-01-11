@@ -20,7 +20,7 @@ $page_image = $front_page['profile_picture'] ?? null;
     <link rel="stylesheet" href="assets/css/hero.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link id="google-fonts" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="hero-header">
@@ -75,5 +75,30 @@ $page_image = $front_page['profile_picture'] ?? null;
         </footer>
     </div>
     <script src="../assets/tracking.js" async></script>
+    <script>
+        // Load custom fonts from settings
+        (async function() {
+            try {
+                const response = await fetch('https://anya.ganger.com/api/settings.php');
+                if (response.ok) {
+                    const settings = await response.json();
+                    const bodyFont = settings.font_body || 'Inter';
+                    const headingFont = settings.font_heading || 'Playfair Display';
+
+                    // Update Google Fonts link
+                    const fontUrl = 'https://fonts.googleapis.com/css2?family=' +
+                        bodyFont.replace(/ /g, '+') + ':wght@300;400;500;600;700&family=' +
+                        headingFont.replace(/ /g, '+') + ':wght@400;500;600;700&display=swap';
+                    document.getElementById('google-fonts').href = fontUrl;
+
+                    // Apply fonts via CSS variables
+                    document.documentElement.style.setProperty('--font-sans', "'" + bodyFont + "', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif");
+                    document.documentElement.style.setProperty('--font-serif', "'" + headingFont + "', 'Didot', Georgia, serif");
+                }
+            } catch (error) {
+                console.log('Using default fonts');
+            }
+        })();
+    </script>
 </body>
 </html>

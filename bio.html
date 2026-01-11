@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bio - Anya Ganger</title>
     <link rel="stylesheet" href="assets/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    <link id="google-fonts" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
     <style>
         .headshot-image {
             filter: grayscale(100%);
@@ -140,6 +140,25 @@
                         p.textContent = 'Bio coming soon...';
                         bioContainer.appendChild(p);
                     }
+
+                    // Load custom fonts
+                    const bodyFont = settings.font_body || 'Inter';
+                    const headingFont = settings.font_heading || 'Playfair Display';
+
+                    // Update Google Fonts link
+                    const fontUrl = 'https://fonts.googleapis.com/css2?family=' +
+                        bodyFont.replace(/ /g, '+') + ':wght@300;400;500;600;700&family=' +
+                        headingFont.replace(/ /g, '+') + ':ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap';
+                    document.getElementById('google-fonts').href = fontUrl;
+
+                    // Apply fonts to document
+                    document.documentElement.style.setProperty('--font-body', "'" + bodyFont + "', sans-serif");
+                    document.documentElement.style.setProperty('--font-heading', "'" + headingFont + "', serif");
+
+                    // Update name-cursive class directly
+                    document.querySelectorAll('.name-cursive').forEach(function(el) {
+                        el.style.fontFamily = "'" + headingFont + "', Georgia, serif";
+                    });
                 } else {
                     throw new Error('Failed to load settings');
                 }

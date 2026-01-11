@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Venture X AI Insights - Anya Ganger</title>
     <link rel="stylesheet" href="../assets/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    <link id="google-fonts" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
     <style>
         .headshot-image {
             filter: grayscale(100%);
@@ -86,16 +86,7 @@
                     </div>
                 </div>
 
-                <div class="bg-card rounded-lg p-8 luxury-shadow max-w-3xl mx-auto text-center mb-16" data-testid="author-bio-section">
-                    <h2 class="text-2xl font-light mb-4" data-testid="author-name" id="author-name">
-                        Anya Ganger
-                    </h2>
-                    <div class="text-muted-foreground mb-6 max-w-xl mx-auto" data-testid="author-bio" id="author-bio">
-                        AI & Venture Capital Explorer
-                    </div>
-                </div>
-                
-                <div class="bg-card rounded-lg p-8 luxury-shadow max-w-2xl mx-auto text-center" data-testid="author-sidebar">
+                <div class="bg-card rounded-lg p-8 luxury-shadow text-center" data-testid="author-sidebar">
                     <div class="w-16 h-16 mx-auto mb-4 rounded-full overflow-hidden">
                         <img 
                             src="../assets/anya-headshot.png"
@@ -132,7 +123,6 @@
                     'blog_title': 'Venture X AI Insights',
                     'blog_tagline': 'Exploring the intersection of artificial intelligence and venture capital through thoughtful analysis and industry insights.',
                     'homepage_name': 'Anya Ganger',
-                    'author_bio': 'AI & Venture Capital Explorer',
                     'author_linkedin': ''
                 };
                 
@@ -146,12 +136,7 @@
                     document.getElementById('blog-tagline').textContent = settings.blog_tagline;
                 }
                 if (settings.homepage_name) {
-                    document.getElementById('author-name').textContent = settings.homepage_name;
                     document.getElementById('sidebar-author-name').textContent = settings.homepage_name;
-                }
-                if (settings.author_bio) {
-                    // Format bio with proper line breaks for first section
-                    document.getElementById('author-bio').innerHTML = settings.author_bio.replace(/\n/g, '<br>');
                 }
                 if (settings.blog_tagline) {
                     document.getElementById('sidebar-blog-tagline').textContent = settings.blog_tagline;
@@ -294,6 +279,31 @@
         });
 
         loadBlogData();
+
+        // Load custom fonts from settings
+        (async function() {
+            try {
+                const response = await fetch('https://anya.ganger.com/api/settings.php');
+                if (response.ok) {
+                    const settings = await response.json();
+                    const bodyFont = settings.font_body || 'Inter';
+                    const headingFont = settings.font_heading || 'Playfair Display';
+
+                    // Update Google Fonts link
+                    const fontUrl = 'https://fonts.googleapis.com/css2?family=' +
+                        bodyFont.replace(/ /g, '+') + ':wght@300;400;500;600;700&family=' +
+                        headingFont.replace(/ /g, '+') + ':ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap';
+                    document.getElementById('google-fonts').href = fontUrl;
+
+                    // Apply fonts via CSS variables
+                    document.documentElement.style.setProperty('--font-body', "'" + bodyFont + "', sans-serif");
+                    document.documentElement.style.setProperty('--font-heading', "'" + headingFont + "', serif");
+                }
+            } catch (error) {
+                console.log('Using default fonts');
+            }
+        })();
     </script>
+    <script src="../assets/tracking.js" async></script>
 </body>
 </html>
