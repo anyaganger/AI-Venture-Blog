@@ -28,8 +28,14 @@ try {
 
     // Force restore - use simple SQL copy
     if (isset($_GET['action']) && $_GET['action'] === 'force') {
-        // Step 1: Delete existing posts
-        $pdo->query("DELETE FROM posts");
+        try {
+            // Step 1: Delete existing posts
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $pdo->query("DELETE FROM posts");
+        } catch (PDOException $e) {
+            echo json_encode(['error' => 'DELETE failed: ' . $e->getMessage()]);
+            exit;
+        }
 
         // Step 2: Get backup posts
         $stmt = $pdo->query("SELECT * FROM posts_backup");
