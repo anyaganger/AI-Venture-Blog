@@ -166,6 +166,16 @@
                                         Site Settings
                                     </button>
                                 </li>
+                                <li>
+                                    <button
+                                        onclick="showSection('analytics')"
+                                        class="w-full text-left px-3 py-2 rounded text-sm transition-colors nav-button hover:bg-muted"
+                                        data-section="analytics"
+                                        data-testid="nav-analytics"
+                                    >
+                                        Analytics
+                                    </button>
+                                </li>
                             </ul>
                         </nav>
                     </aside>
@@ -492,15 +502,8 @@ Write your content in Markdown format..."
                                         </div>
                                         <div>
                                             <label class="text-sm font-medium mb-2 block">Blog Tagline</label>
-                                            <textarea 
-                                                id="blog_tagline" 
-                                                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm h-24"
-                                            ></textarea>
-                                        </div>
-                                        <div>
-                                            <label class="text-sm font-medium mb-2 block">Author Bio</label>
-                                            <textarea 
-                                                id="author_bio" 
+                                            <textarea
+                                                id="blog_tagline"
                                                 class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm h-24"
                                             ></textarea>
                                         </div>
@@ -511,6 +514,88 @@ Write your content in Markdown format..."
                                             Save Settings
                                         </button>
                                     </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Analytics Section -->
+                        <div id="section-analytics" class="admin-section hidden" data-testid="section-analytics">
+                            <div class="grid md:grid-cols-4 gap-6 mb-8">
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="pt-6 p-6">
+                                        <h3 class="text-sm font-medium text-muted-foreground mb-2">Total Page Views</h3>
+                                        <p class="text-2xl font-light" id="stat-total-views">-</p>
+                                        <p class="text-xs text-muted-foreground mt-1">All time</p>
+                                    </div>
+                                </div>
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="pt-6 p-6">
+                                        <h3 class="text-sm font-medium text-muted-foreground mb-2">Views Today</h3>
+                                        <p class="text-2xl font-light" id="stat-today-views">-</p>
+                                        <p class="text-xs text-muted-foreground mt-1">Last 24 hours</p>
+                                    </div>
+                                </div>
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="pt-6 p-6">
+                                        <h3 class="text-sm font-medium text-muted-foreground mb-2">This Week</h3>
+                                        <p class="text-2xl font-light" id="stat-week-views">-</p>
+                                        <p class="text-xs text-muted-foreground mt-1">Last 7 days</p>
+                                    </div>
+                                </div>
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="pt-6 p-6">
+                                        <h3 class="text-sm font-medium text-muted-foreground mb-2">Unique Visitors</h3>
+                                        <p class="text-2xl font-light" id="stat-unique-visitors">-</p>
+                                        <p class="text-xs text-muted-foreground mt-1">This month</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="p-6 border-b border-border">
+                                        <h2 class="text-xl font-medium">Top Pages</h2>
+                                    </div>
+                                    <div class="p-6">
+                                        <div id="top-pages" class="space-y-3">
+                                            <p class="text-muted-foreground">Loading...</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="p-6 border-b border-border">
+                                        <h2 class="text-xl font-medium">Top Blog Posts</h2>
+                                    </div>
+                                    <div class="p-6">
+                                        <div id="top-posts" class="space-y-3">
+                                            <p class="text-muted-foreground">Loading...</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="p-6 border-b border-border">
+                                        <h2 class="text-xl font-medium">Traffic Sources</h2>
+                                    </div>
+                                    <div class="p-6">
+                                        <div id="traffic-sources" class="space-y-3">
+                                            <p class="text-muted-foreground">Loading...</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="p-6 border-b border-border">
+                                        <h2 class="text-xl font-medium">Recent Visitors</h2>
+                                    </div>
+                                    <div class="p-6">
+                                        <div id="recent-visitors" class="space-y-3">
+                                            <p class="text-muted-foreground">Loading...</p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -640,6 +725,8 @@ Write your content in Markdown format..."
             // Load section-specific data
             if (section === 'posts') {
                 loadPostsList();
+            } else if (section === 'analytics') {
+                loadAnalytics();
             } else if (section === 'new-post') {
                 // Set default date when creating new post
                 if (!document.getElementById('post-form').dataset.editId) {
@@ -722,6 +809,124 @@ Write your content in Markdown format..."
                 }
             } catch (error) {
                 console.log('Failed to load settings');
+            }
+        }
+
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                // Load stats
+                const statsResponse = await authenticatedFetch('/api/analytics.php?action=stats');
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    document.getElementById('stat-total-views').textContent = stats.totalViews.toLocaleString();
+                    document.getElementById('stat-today-views').textContent = stats.todayViews.toLocaleString();
+                    document.getElementById('stat-week-views').textContent = stats.weekViews.toLocaleString();
+                    document.getElementById('stat-unique-visitors').textContent = stats.uniqueVisitors.toLocaleString();
+                }
+
+                // Load top pages
+                const pagesResponse = await authenticatedFetch('/api/analytics.php?action=top-pages');
+                if (pagesResponse.ok) {
+                    const pages = await pagesResponse.json();
+                    const topPagesDiv = document.getElementById('top-pages');
+                    if (pages.length > 0) {
+                        topPagesDiv.textContent = '';
+                        pages.forEach(page => {
+                            const div = document.createElement('div');
+                            div.className = 'flex justify-between items-center py-2 border-b border-border last:border-0';
+                            const titleSpan = document.createElement('span');
+                            titleSpan.className = 'text-sm truncate max-w-xs';
+                            titleSpan.textContent = page.page_title || page.page_path;
+                            const viewsSpan = document.createElement('span');
+                            viewsSpan.className = 'text-sm text-muted-foreground';
+                            viewsSpan.textContent = page.views + ' views';
+                            div.appendChild(titleSpan);
+                            div.appendChild(viewsSpan);
+                            topPagesDiv.appendChild(div);
+                        });
+                    } else {
+                        topPagesDiv.textContent = 'No data yet. Views will appear once tracking is active.';
+                    }
+                }
+
+                // Load top posts
+                const postsResponse = await authenticatedFetch('/api/analytics.php?action=top-posts');
+                if (postsResponse.ok) {
+                    const posts = await postsResponse.json();
+                    const topPostsDiv = document.getElementById('top-posts');
+                    if (posts.length > 0) {
+                        topPostsDiv.textContent = '';
+                        posts.forEach(post => {
+                            const div = document.createElement('div');
+                            div.className = 'flex justify-between items-center py-2 border-b border-border last:border-0';
+                            const titleSpan = document.createElement('span');
+                            titleSpan.className = 'text-sm truncate max-w-xs';
+                            titleSpan.textContent = post.page_title || post.page_path;
+                            const viewsSpan = document.createElement('span');
+                            viewsSpan.className = 'text-sm text-muted-foreground';
+                            viewsSpan.textContent = post.views + ' views';
+                            div.appendChild(titleSpan);
+                            div.appendChild(viewsSpan);
+                            topPostsDiv.appendChild(div);
+                        });
+                    } else {
+                        topPostsDiv.textContent = 'No blog post views yet.';
+                    }
+                }
+
+                // Load traffic sources
+                const sourcesResponse = await authenticatedFetch('/api/analytics.php?action=sources');
+                if (sourcesResponse.ok) {
+                    const sources = await sourcesResponse.json();
+                    const sourcesDiv = document.getElementById('traffic-sources');
+                    if (sources.length > 0) {
+                        sourcesDiv.textContent = '';
+                        sources.forEach(source => {
+                            const div = document.createElement('div');
+                            div.className = 'flex justify-between items-center py-2 border-b border-border last:border-0';
+                            const nameSpan = document.createElement('span');
+                            nameSpan.className = 'text-sm';
+                            nameSpan.textContent = source.source;
+                            const viewsSpan = document.createElement('span');
+                            viewsSpan.className = 'text-sm text-muted-foreground';
+                            viewsSpan.textContent = source.views + ' visits';
+                            div.appendChild(nameSpan);
+                            div.appendChild(viewsSpan);
+                            sourcesDiv.appendChild(div);
+                        });
+                    } else {
+                        sourcesDiv.textContent = 'No data yet.';
+                    }
+                }
+
+                // Load recent visitors
+                const recentResponse = await authenticatedFetch('/api/analytics.php?action=recent');
+                if (recentResponse.ok) {
+                    const recent = await recentResponse.json();
+                    const recentDiv = document.getElementById('recent-visitors');
+                    if (recent.length > 0) {
+                        recentDiv.textContent = '';
+                        recent.slice(0, 10).forEach(visit => {
+                            const div = document.createElement('div');
+                            div.className = 'flex justify-between items-center py-2 border-b border-border last:border-0';
+                            const pageSpan = document.createElement('span');
+                            pageSpan.className = 'text-sm truncate max-w-xs';
+                            pageSpan.textContent = visit.page_title || visit.page_path;
+                            const timeSpan = document.createElement('span');
+                            timeSpan.className = 'text-xs text-muted-foreground';
+                            timeSpan.textContent = new Date(visit.created_at).toLocaleString();
+                            div.appendChild(pageSpan);
+                            div.appendChild(timeSpan);
+                            recentDiv.appendChild(div);
+                        });
+                    } else {
+                        recentDiv.textContent = 'No recent visitors.';
+                    }
+                }
+
+            } catch (error) {
+                console.error('Failed to load analytics:', error);
             }
         }
 

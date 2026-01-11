@@ -74,5 +74,6 @@ $page_image = $front_page['profile_picture'] ?? null;
             <p>&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
         </footer>
     </div>
+    <script src="../assets/tracking.js" async></script>
 </body>
 </html>

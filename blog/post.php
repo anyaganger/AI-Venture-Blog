@@ -68,5 +68,6 @@ $page_description = $post['excerpt'];
             </div>
         </footer>
     </div>
+    <script src="../assets/tracking.js" async></script>
 </body>
 </html>
