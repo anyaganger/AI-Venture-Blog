@@ -25,13 +25,28 @@ try {
 
     // If restore requested
     if (isset($_GET['action']) && $_GET['action'] === 'restore') {
-        // Get backup data
-        $stmt = $pdo->query("SELECT * FROM posts_backup");
+        // First, get category names mapping
+        $stmt = $pdo->query("SELECT id, name FROM categories");
+        $categories = [];
+        while ($row = $stmt->fetch()) {
+            $categories[$row['id']] = $row['name'];
+        }
+
+        // Get backup data with category join
+        $stmt = $pdo->query("
+            SELECT pb.*, c.name as category_name
+            FROM posts_backup pb
+            LEFT JOIN categories c ON pb.category_id = c.id
+        ");
         $backupPosts = $stmt->fetchAll();
 
         $restored = 0;
+        $errors = [];
         foreach ($backupPosts as $post) {
-            // Try to insert, matching column names
+            // Map backup fields to current schema
+            $categoryName = $post['category_name'] ?? $categories[$post['category_id'] ?? 0] ?? 'AI & Machine Learning';
+            $published = ($post['status'] === 'published') ? 1 : 0;
+
             try {
                 $stmt = $pdo->prepare("
                     INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order)
@@ -42,21 +57,22 @@ try {
                     $post['slug'] ?? '',
                     $post['content'] ?? '',
                     $post['excerpt'] ?? '',
-                    $post['category'] ?? 'Uncategorized',
+                    $categoryName,
                     $post['read_time'] ?? 5,
-                    $post['published'] ?? 1,
-                    $post['post_order'] ?? 0
+                    $published,
+                    0
                 ]);
                 $restored++;
             } catch (Exception $e) {
-                // Skip duplicates
+                $errors[] = "Skipped '{$post['title']}': " . $e->getMessage();
             }
         }
 
         echo json_encode([
             'success' => true,
             'message' => "Restored $restored posts from backup",
-            'restored' => $restored
+            'restored' => $restored,
+            'errors' => $errors
         ]);
     } else {
         // Just show info
