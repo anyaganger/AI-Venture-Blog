@@ -16,19 +16,29 @@ if (!isset($_GET['go'])) {
 }
 
 // Do the restore
-$pdo->query("DELETE FROM posts");
+try {
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->query("DELETE FROM posts");
 
-$cats = [];
-foreach ($pdo->query("SELECT id, name FROM categories")->fetchAll() as $c) {
-    $cats[$c['id']] = $c['name'];
+    $cats = [];
+    foreach ($pdo->query("SELECT id, name FROM categories")->fetchAll() as $c) {
+        $cats[$c['id']] = $c['name'];
+    }
+
+    $restored = 0;
+    $errors = [];
+    foreach ($pdo->query("SELECT * FROM posts_backup")->fetchAll() as $p) {
+        $cat = $cats[$p['category_id']] ?? 'General';
+        try {
+            $stmt = $pdo->prepare("INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order) VALUES (?,?,?,?,?,?,1,0)");
+            $stmt->execute([$p['title'], $p['slug'], $p['content'], $p['excerpt'], $cat, $p['read_time'] ?? 5]);
+            $restored++;
+        } catch (PDOException $e) {
+            $errors[] = $p['slug'] . ': ' . $e->getMessage();
+        }
+    }
+
+    echo json_encode(['restored' => $restored, 'errors' => $errors]);
+} catch (PDOException $e) {
+    echo json_encode(['error' => $e->getMessage()]);
 }
-
-$restored = 0;
-foreach ($pdo->query("SELECT * FROM posts_backup") as $p) {
-    $cat = $cats[$p['category_id']] ?? 'General';
-    $pdo->prepare("INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order) VALUES (?,?,?,?,?,?,1,0)")
-        ->execute([$p['title'], $p['slug'], $p['content'], $p['excerpt'], $cat, $p['read_time'] ?? 5]);
-    $restored++;
-}
-
-echo json_encode(['restored' => $restored]);
