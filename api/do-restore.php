@@ -41,9 +41,19 @@ try {
     foreach ($pdo->query("SELECT * FROM posts_backup")->fetchAll() as $p) {
         $cat = $cats[$p['category_id']] ?? 'General';
         $id = uuid();
+
+        // Escape values
+        $title = $pdo->quote($p['title']);
+        $slug = $pdo->quote($p['slug']);
+        $content = $pdo->quote($p['content']);
+        $excerpt = $pdo->quote($p['excerpt']);
+        $catQ = $pdo->quote($cat);
+        $rt = (int)($p['read_time'] ?? 5);
+
         try {
-            $stmt = $pdo->prepare("INSERT INTO posts (id, title, slug, content, excerpt, category, read_time, published, post_order) VALUES (?,?,?,?,?,?,?,1,0)");
-            $stmt->execute([$id, $p['title'], $p['slug'], $p['content'], $p['excerpt'], $cat, $p['read_time'] ?? 5]);
+            $sql = "INSERT INTO posts (id, title, slug, content, excerpt, category, read_time, published, post_order)
+                    VALUES ('$id', $title, $slug, $content, $excerpt, $catQ, $rt, 1, 0)";
+            $pdo->query($sql);
             $restored++;
         } catch (PDOException $e) {
             $errors[] = $p['slug'] . ': ' . $e->getMessage();
