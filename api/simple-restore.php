@@ -19,8 +19,8 @@ $pdo = new PDO(
 // Clear posts
 $pdo->query("DELETE FROM posts");
 
-// Get first 2 backup posts only
-$backupPosts = $pdo->query("SELECT * FROM posts_backup LIMIT 2")->fetchAll(PDO::FETCH_ASSOC);
+// Get ALL backup posts
+$backupPosts = $pdo->query("SELECT * FROM posts_backup")->fetchAll(PDO::FETCH_ASSOC);
 
 $results = [];
 foreach ($backupPosts as $i => $p) {
