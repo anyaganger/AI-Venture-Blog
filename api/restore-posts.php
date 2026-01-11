@@ -28,46 +28,57 @@ try {
 
     // Force restore - use simple SQL copy
     if (isset($_GET['action']) && $_GET['action'] === 'force') {
-        try {
-            // Step 1: Delete existing posts
-            $deleted = $pdo->prepare("DELETE FROM posts")->execute();
+        // Step 1: Delete existing posts
+        $pdo->query("DELETE FROM posts");
 
-            // Step 2: Get backup posts one by one
-            $stmt = $pdo->query("SELECT * FROM posts_backup");
-            $backupPosts = $stmt->fetchAll();
+        // Step 2: Get backup posts
+        $stmt = $pdo->query("SELECT * FROM posts_backup");
+        $backupPosts = $stmt->fetchAll();
 
-            // Step 3: Get categories
-            $catStmt = $pdo->query("SELECT id, name FROM categories");
-            $cats = [];
-            foreach ($catStmt->fetchAll() as $c) {
-                $cats[$c['id']] = $c['name'];
-            }
+        // Step 3: Get categories
+        $catStmt = $pdo->query("SELECT id, name FROM categories");
+        $cats = [];
+        foreach ($catStmt->fetchAll() as $c) {
+            $cats[$c['id']] = $c['name'];
+        }
 
-            // Step 4: Insert each post
-            $count = 0;
-            foreach ($backupPosts as $bp) {
-                $cat = isset($bp['category_id']) && isset($cats[$bp['category_id']])
-                    ? $cats[$bp['category_id']]
-                    : 'AI & Machine Learning';
-                $pub = ($bp['status'] ?? '') === 'published' ? 1 : 1;
+        // Step 4: Insert each post with individual error handling
+        $count = 0;
+        $errors = [];
+        $success = [];
 
-                $ins = $pdo->prepare("INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order) VALUES (?,?,?,?,?,?,?,0)");
+        foreach ($backupPosts as $i => $bp) {
+            $cat = isset($bp['category_id']) && isset($cats[$bp['category_id']])
+                ? $cats[$bp['category_id']]
+                : 'AI & Machine Learning';
+
+            $slug = !empty($bp['slug']) ? $bp['slug'] : 'post-' . ($i + 1);
+            $title = !empty($bp['title']) ? $bp['title'] : 'Untitled Post';
+
+            try {
+                $ins = $pdo->prepare("INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order) VALUES (?,?,?,?,?,?,1,0)");
                 $ins->execute([
-                    $bp['title'],
-                    $bp['slug'],
-                    $bp['content'],
-                    $bp['excerpt'],
+                    $title,
+                    $slug,
+                    $bp['content'] ?? '',
+                    $bp['excerpt'] ?? '',
                     $cat,
-                    $bp['read_time'] ?? 5,
-                    $pub
+                    $bp['read_time'] ?? 5
                 ]);
                 $count++;
+                $success[] = $title;
+            } catch (PDOException $e) {
+                $errors[] = "$title: " . $e->getMessage();
             }
-
-            echo json_encode(['success' => true, 'restored' => $count]);
-        } catch (PDOException $e) {
-            echo json_encode(['error' => $e->getMessage(), 'code' => $e->getCode()]);
         }
+
+        echo json_encode([
+            'success' => true,
+            'restored' => $count,
+            'total_backup' => count($backupPosts),
+            'success_titles' => $success,
+            'errors' => $errors
+        ]);
         exit;
     }
 
