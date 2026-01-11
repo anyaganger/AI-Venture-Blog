@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Outreach Platform - Coming Soon</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    <style>
+        .luxury-hover {
+            transition: all 0.3s ease;
+        }
+        .luxury-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex items-center justify-center px-6">
+        <div class="text-center max-w-2xl mx-auto fade-in" data-testid="coming-soon-section">
+            <div class="mb-12">
+                <h1 class="text-5xl md:text-6xl font-light tracking-tight mb-6" data-testid="coming-soon-title">
+                    AI Outreach Platform
+                </h1>
+                <p class="text-xl md:text-2xl text-muted-foreground font-light mb-8" data-testid="coming-soon-tagline">
+                    Coming Soon
+                </p>
+                <p class="text-lg text-muted-foreground mb-12" data-testid="coming-soon-description">
+                    We're building something amazing. Stay tuned for the launch of our AI-powered outreach platform.
+                </p>
+            </div>
+            
+            <div class="space-y-4">
+                <a href="index.html">
+                    <button 
+                        class="bg-primary text-primary-foreground px-8 py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors luxury-hover"
+                        data-testid="button-back-home"
+                    >
+                        Back to Homepage
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,17 @@
+RewriteEngine On
+
+# Route API requests to appropriate PHP files
+RewriteRule ^posts/?$ posts.php [L]
+RewriteRule ^posts/([^/]+)/?$ posts.php [L]
+RewriteRule ^admin/posts/?$ posts.php [L]
+RewriteRule ^admin/posts/([^/]+)/?$ posts.php [L]
+RewriteRule ^admin/settings/?$ settings.php [L]
+RewriteRule ^settings/?$ settings.php [L]
+RewriteRule ^auth/login/?$ auth.php [L]
+RewriteRule ^auth/logout/?$ auth.php [L]
+RewriteRule ^auth/verify/?$ auth.php [L]
+
+# Enable CORS
+Header always set Access-Control-Allow-Origin "*"
+Header always set Access-Control-Allow-Methods "GET, POST, PATCH, DELETE, OPTIONS"
+Header always set Access-Control-Allow-Headers "Content-Type, Authorization"

@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "kutchiWord": "Pani",
+        "phoneticSpelling": "Paw-nee",
+        "englishTranslation": "Water"
+    },
+    {
+        "id": 2,
+        "kutchiWord": "Ki Ayo",
+        "phoneticSpelling": "Kee Ey-yo",
+        "englishTranslation": "How are you? (Greeting)"
+    },
+    {
+        "id": 3,
+        "kutchiWord": "Dhoodh",
+        "phoneticSpelling": "Dude",
+        "englishTranslation": "Milk"
+    }
+]

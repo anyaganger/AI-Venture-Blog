@@ -1,0 +1,29 @@
+# Sensitive files
+.settings
+.env
+*.env
+
+# FTP sync state
+.ftp-deploy-sync-state.json
+.ftpquota
+
+# Dreamweaver metadata
+_notes/
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+logs/
+error_log
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

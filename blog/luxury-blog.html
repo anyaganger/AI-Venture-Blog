@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI × Venture Insights - Anya Ganger</title>
+    <meta name="description" content="Exploring the intersection of artificial intelligence and venture capital with luxury insights from Anya Ganger">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@200;300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+    
+    <style>
+        /* CSS Variables for luxury colors */
+        :root {
+            --cream: 44 18% 94%;
+            --warm-white: 40 20% 97%;
+            --soft-gray: 240 4% 46%;
+            --background: 0 0% 100%;
+            --foreground: 0 0% 3.9%;
+            --card: 0 0% 100%;
+            --border: 240 5.9% 90%;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+            line-height: 1.7;
+            color: hsl(var(--foreground));
+            background: hsl(var(--background));
+        }
+
+        /* Luxury container */
+        .luxury-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        .luxury-header {
+            background: hsl(var(--background));
+            border-bottom: 1px solid hsl(var(--border));
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+
+        .header-content {
+            display: flex;
+            height: 5rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Ultra-luxury typography */
+        .font-display {
+            font-family: 'Playfair Display', serif;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            line-height: 1.15;
+        }
+
+        .font-serif {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* Dior-inspired title with shade effect */
+        .dior-title {
+            position: relative;
+            display: inline-block;
+            font-family: 'Playfair Display', serif;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+            color: hsl(var(--foreground));
+        }
+
+        .dior-title::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            z-index: -1;
+            color: hsl(var(--soft-gray) / 0.2);
+            text-shadow: 1px 1px 2px hsl(var(--soft-gray) / 0.1);
+        }
+
+        /* Hero section with scroll-triggered overlay */
+        .hero-section {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, 
+                hsl(var(--cream)) 0%, 
+                hsl(var(--warm-white)) 50%, 
+                hsl(var(--soft-gray) / 0.1) 100%
+            );
+            overflow: hidden;
+            margin-top: 5rem;
+        }
+
+        /* Scroll-triggered overlay that fades on scroll */
+        .hero-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(
+                135deg,
+                rgba(0, 0, 0, 0.4) 0%,
+                rgba(0, 0, 0, 0.2) 50%,
+                rgba(0, 0, 0, 0.3) 100%
+            );
+            transition: opacity 0.6s ease-out;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .hero-overlay.faded {
+            opacity: 0;
+        }
+
+        /* Hero content positioning */
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+        }
+
+        .hero-title {
+            color: white;
+            font-size: clamp(3rem, 8vw, 8rem);
+            font-weight: 300;
+            letter-spacing: 0.02em;
+            margin-bottom: 2rem;
+            transition: text-shadow 0.6s ease-out;
+        }
+
+        /* Soft, wide luxury text shadow that intensifies as overlay fades */
+        .hero-title.enhanced-shadow {
+            text-shadow: 
+                0 2px 12px rgba(0, 0, 0, 0.25),
+                0 4px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .hero-title.light-shadow {
+            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Content sections */
+        .content-sections {
+            background: white;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Luxury spacing */
+        .luxury-spacing {
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+        }
+
+        /* Minimalist cards */
+        .luxury-card {
+            background: hsl(var(--card));
+            border: 1px solid hsl(var(--border));
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            padding: 3rem;
+            border-radius: 0;
+        }
+
+        .luxury-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Ultra-minimalist buttons */
+        .luxury-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 400;
+            font-size: 11px;
+            transition: all 0.5s;
+            background: transparent;
+            border: 1px solid hsl(var(--foreground));
+            color: hsl(var(--foreground));
+            padding: 12px 32px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .luxury-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: hsl(var(--foreground));
+            transition: width 0.4s ease;
+            z-index: -1;
+        }
+
+        .luxury-button:hover::before {
+            width: 100%;
+        }
+
+        .luxury-button:hover {
+            color: hsl(var(--background));
+        }
+
+        /* Footer */
+        .luxury-footer {
+            background: linear-gradient(135deg, 
+                hsl(var(--cream)) 0%, 
+                hsl(var(--warm-white)) 100%);
+            border-top: 1px solid hsl(var(--border));
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .luxury-container {
+                padding: 0 1rem;
+            }
+            
+            .hero-title {
+                font-size: clamp(2rem, 10vw, 4rem);
+            }
+        }
+
+        /* Animation utilities */
+        .animate-fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Section styling */
+        .section {
+            padding: 8rem 0;
+        }
+
+        .section-tight {
+            padding: 4rem 0 8rem 0;
+        }
+
+        .about-section {
+            padding: 8rem 0;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mb-12 { margin-bottom: 3rem; }
+        .mb-16 { margin-bottom: 4rem; }
+        .mb-20 { margin-bottom: 5rem; }
+
+        .max-w-2xl {
+            max-width: 42rem;
+            margin: 0 auto;
+        }
+
+        .max-w-3xl {
+            max-width: 48rem;
+            margin: 0 auto;
+        }
+
+        .profile-image {
+            width: 16rem;
+            height: 16rem;
+            overflow: hidden;
+            position: relative;
+            margin: 0 auto 2rem auto;
+            border-radius: 50%;
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.7s ease;
+        }
+
+        .profile-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .bio-text {
+            font-size: 1.125rem;
+            font-weight: 300;
+            line-height: 2;
+            color: hsl(var(--foreground));
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="luxury-header">
+        <div class="luxury-container">
+            <div class="header-content">
+                <a href="#" style="text-decoration: none;">
+                    <span class="dior-title" style="font-size: 1.5rem; font-weight: 300; letter-spacing: 0.05em;" data-text="AI × Venture Insights">
+                        AI × Venture Insights
+                    </span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div style="min-height: 100vh;">
+        <!-- Scroll-triggered overlay -->
+        <div class="hero-overlay" id="hero-overlay"></div>
+        
+        <!-- Hero Section with dramatic title -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title dior-title light-shadow" id="hero-title" data-text="AI × Venture Insights">
+                    AI × Venture <em>Insights</em>
+                </h1>
+            </div>
+        </section>
+
+        <!-- Content sections with white background -->
+        <div class="content-sections">
+            <!-- Latest Insights -->
+            <section class="section-tight">
+                <div class="luxury-container">
+                    <div class="text-center mb-20">
+                        <h2 class="dior-title" style="font-size: 3rem; font-weight: 300; margin-bottom: 4rem;" data-text="Latest Insights">
+                            Latest Insights
+                        </h2>
+                    </div>
+                    
+                    <div class="luxury-spacing">
+                        <!-- Sample Post Card -->
+                        <article class="luxury-card animate-fade-in-up">
+                            <div style="margin-bottom: 1rem;">
+                                <span style="font-size: 0.75rem; font-weight: 500; color: hsl(var(--soft-gray)); text-transform: uppercase; letter-spacing: 0.1em;">
+                                    AI Strategy
+                                </span>
+                            </div>
+                            
+                            <h2 class="dior-title" style="font-size: 1.875rem; font-weight: 300; line-height: 1.2; margin-bottom: 1rem;" data-text="The Future of AI in Venture Capital Due Diligence">
+                                The Future of AI in Venture Capital Due Diligence
+                            </h2>
+                            
+                            <p style="font-size: 1rem; font-weight: 300; line-height: 1.8; color: hsl(var(--soft-gray)); margin-bottom: 2rem;">
+                                Exploring how artificial intelligence is revolutionizing the way VCs evaluate startups, from automated financial analysis to predictive market modeling.
+                            </p>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; color: hsl(var(--soft-gray));">
+                                <span>5 min read</span>
+                                <span>December 2024</span>
+                            </div>
+                        </article>
+
+                        <!-- Sample Post Card 2 -->
+                        <article class="luxury-card animate-fade-in-up" style="animation-delay: 0.2s;">
+                            <div style="margin-bottom: 1rem;">
+                                <span style="font-size: 0.75rem; font-weight: 500; color: hsl(var(--soft-gray)); text-transform: uppercase; letter-spacing: 0.1em;">
+                                    Market Analysis
+                                </span>
+                            </div>
+                            
+                            <h2 class="dior-title" style="font-size: 1.875rem; font-weight: 300; line-height: 1.2; margin-bottom: 1rem;" data-text="Regulatory Challenges in AI Startup Funding">
+                                Regulatory Challenges in AI Startup Funding
+                            </h2>
+                            
+                            <p style="font-size: 1rem; font-weight: 300; line-height: 1.8; color: hsl(var(--soft-gray)); margin-bottom: 2rem;">
+                                An analysis of emerging regulations and their impact on AI startup valuations and investment strategies in the current market landscape.
+                            </p>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.875rem; color: hsl(var(--soft-gray));">
+                                <span>7 min read</span>
+                                <span>November 2024</span>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section class="about-section" style="background: linear-gradient(135deg, hsl(var(--cream)) 0%, hsl(var(--warm-white)) 100%);">
+                <div class="luxury-container">
+                    <div class="text-center mb-16">
+                        <h2 style="font-size: 3rem; font-weight: 300; margin-bottom: 2rem;">About</h2>
+                        <h3 class="dior-title" style="font-size: 2.5rem; font-weight: 300; font-style: italic; margin-bottom: 2rem;" data-text="Anya Ganger">
+                            Anya Ganger
+                        </h3>
+                    </div>
+                    
+                    <div class="max-w-3xl text-center">
+                        <div class="mb-12">
+                            <div class="profile-image">
+                                <img src="https://via.placeholder.com/400x400/f5f5f5/666666?text=Anya+Ganger" alt="Anya Ganger">
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 0 auto;">
+                            <p class="bio-text text-center">
+                                Welcome! Glad to see you've found my blog. I'm Anya, a sophomore studying entrepreneurship and finance at Wharton. I grew up in Ann Arbor, Michigan, in a family where small business and hustle were part of everyday conversation. My dad's a self-proclaimed serial entrepreneur, my mom's a dermatologist, my grandma's an immigrant hardass, my brother's a nonchalant lax bro, and my dog is six pounds of pure snuggliness.
+                            </p>
+                            <p class="bio-text text-center">
+                                Growing up, I spent summers working at my grandma's laundromat, where I saw firsthand how businesses run and how communities depend on them. This won't be a perfect blog, not promising it will be helpful, but it will be real. Let's figure this out together.
+                            </p>
+                        </div>
+                        
+                        <a href="https://www.linkedin.com/in/anya-ganger-410069234/" target="_blank" class="luxury-button">
+                            Connect with me on LinkedIn
+                            <svg style="width: 1rem; height: 1rem; margin-left: 0.5rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="luxury-footer">
+        <div class="luxury-container" style="padding: 6rem 2rem;">
+            <div class="text-center" style="display: flex; flex-direction: column; gap: 2rem;">
+                <div>
+                    <h3 class="dior-title" style="font-size: 1.5rem; font-weight: 300; margin-bottom: 1rem;" data-text="Anya Ganger">
+                        Anya Ganger
+                    </h3>
+                    <p style="font-size: 1.125rem; font-weight: 300; color: hsl(var(--soft-gray));">
+                        AI & Venture Capital Insights
+                    </p>
+                </div>
+                
+                <div style="display: flex; justify-content: center; gap: 2rem;">
+                    <a href="https://www.linkedin.com/in/anya-ganger-410069234/" target="_blank" style="color: hsl(var(--soft-gray)); text-decoration: none; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.1em;">
+                        LinkedIn
+                    </a>
+                </div>
+                
+                <div style="border-top: 1px solid hsl(var(--border)); padding-top: 2rem;">
+                    <p style="font-size: 0.875rem; color: hsl(var(--soft-gray)); font-weight: 300;">
+                        © 2024 Anya Ganger. All rights reserved.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Scroll effect for hero overlay and title shadow
+        let scrollY = 0;
+        
+        function handleScroll() {
+            scrollY = window.scrollY;
+            
+            const overlay = document.getElementById('hero-overlay');
+            const title = document.getElementById('hero-title');
+            
+            if (overlay) {
+                if (scrollY > 100) {
+                    overlay.classList.add('faded');
+                } else {
+                    overlay.classList.remove('faded');
+                }
+            }
+            
+            if (title) {
+                if (scrollY > 50) {
+                    title.classList.remove('light-shadow');
+                    title.classList.add('enhanced-shadow');
+                } else {
+                    title.classList.remove('enhanced-shadow');
+                    title.classList.add('light-shadow');
+                }
+            }
+        }
+        
+        window.addEventListener('scroll', handleScroll);
+        
+        // Initialize
+        handleScroll();
+    </script>
+</body>
+</html>

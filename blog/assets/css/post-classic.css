@@ -1,0 +1,239 @@
+/* Classic post style - Luxury editorial inspired by Didot */
+
+.post-style-classic {
+    background-color: var(--color-ivory);
+}
+
+.post-style-classic .container {
+    max-width: 800px;
+}
+
+/* Classic header styling */
+.post-style-classic .post-header {
+    padding: var(--spacing-xxl) 0;
+    text-align: center;
+    border-bottom: 3px double var(--color-gold);
+    margin-bottom: var(--spacing-xl);
+    position: relative;
+}
+
+.post-style-classic .post-header::before {
+    content: '✦';
+    position: absolute;
+    top: var(--spacing-md);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    color: var(--color-gold);
+    opacity: 0.5;
+}
+
+.post-style-classic .back-link {
+    position: absolute;
+    top: var(--spacing-md);
+    left: 0;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-gray);
+}
+
+.post-style-classic .post-meta-header {
+    margin-bottom: var(--spacing-lg);
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-gray);
+}
+
+.post-style-classic .post-meta-header span {
+    position: relative;
+}
+
+.post-style-classic .post-meta-header span:not(:last-child)::after {
+    content: '•';
+    position: absolute;
+    right: calc(var(--spacing-md) / -2);
+    color: var(--color-gold);
+}
+
+.post-style-classic .post-title {
+    font-family: 'Playfair Display', 'Didot', Georgia, serif;
+    font-weight: 700;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    margin-bottom: var(--spacing-md);
+    color: var(--color-black);
+}
+
+.post-style-classic .post-excerpt {
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--color-gray);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+/* Classic content styling */
+.post-style-classic .post-content {
+    font-family: var(--font-serif);
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--color-black);
+    letter-spacing: 0.01em;
+}
+
+.post-style-classic .post-content::first-letter {
+    float: left;
+    font-size: 5rem;
+    line-height: 0.8;
+    margin: 0.1em 0.1em 0 0;
+    font-weight: 700;
+    color: var(--color-gold);
+}
+
+.post-style-classic .post-content p {
+    margin-bottom: var(--spacing-md);
+    text-align: justify;
+    hyphens: auto;
+}
+
+.post-style-classic .post-content h2 {
+    font-size: 2.5rem;
+    margin: var(--spacing-xl) 0 var(--spacing-md);
+    text-align: center;
+    position: relative;
+    padding: var(--spacing-md) 0;
+}
+
+.post-style-classic .post-content h2::before,
+.post-style-classic .post-content h2::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 1px;
+    background-color: var(--color-gold);
+}
+
+.post-style-classic .post-content h2::before {
+    top: 0;
+}
+
+.post-style-classic .post-content h2::after {
+    bottom: 0;
+}
+
+.post-style-classic .post-content h3 {
+    font-size: 1.75rem;
+    margin: var(--spacing-lg) 0 var(--spacing-sm);
+    color: var(--color-gold);
+}
+
+.post-style-classic .post-content blockquote {
+    margin: var(--spacing-lg) 0;
+    padding: var(--spacing-md);
+    border-left: 3px solid var(--color-gold);
+    background-color: rgba(247, 231, 206, 0.2);
+    font-style: italic;
+    font-size: 1.25rem;
+    text-align: center;
+}
+
+.post-style-classic .post-content ul,
+.post-style-classic .post-content ol {
+    margin: var(--spacing-md) 0;
+    padding-left: var(--spacing-lg);
+}
+
+.post-style-classic .post-content li {
+    margin-bottom: var(--spacing-sm);
+    position: relative;
+}
+
+.post-style-classic .post-content ul li::before {
+    content: '◆';
+    position: absolute;
+    left: -1.5rem;
+    color: var(--color-gold);
+}
+
+/* Classic footer styling */
+.post-style-classic .post-footer {
+    margin-top: var(--spacing-xxl);
+    padding: var(--spacing-xl) 0;
+    border-top: 3px double var(--color-gold);
+}
+
+.post-style-classic .author-footer {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, rgba(253, 251, 247, 0.8), rgba(247, 231, 206, 0.3));
+    border: 1px solid var(--color-gold);
+    position: relative;
+}
+
+.post-style-classic .author-footer::before {
+    content: '❋';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--color-ivory);
+    padding: 0 var(--spacing-sm);
+    color: var(--color-gold);
+    font-size: 1.5rem;
+}
+
+.post-style-classic .author-headshot {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-gold);
+    filter: sepia(20%);
+}
+
+.post-style-classic .author-footer-info {
+    flex: 1;
+}
+
+.post-style-classic .author-footer-info p {
+    margin-bottom: var(--spacing-sm);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .post-style-classic .post-header {
+        padding: var(--spacing-lg) 0;
+    }
+    
+    .post-style-classic .post-title {
+        font-size: 2.5rem;
+    }
+    
+    .post-style-classic .post-content {
+        font-size: 1rem;
+    }
+    
+    .post-style-classic .post-content::first-letter {
+        font-size: 3.5rem;
+    }
+    
+    .post-style-classic .author-footer {
+        flex-direction: column;
+        text-align: center;
+    }
+}

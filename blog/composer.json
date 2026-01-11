@@ -1,0 +1,12 @@
+{
+    "name": "anya-blog/venture-ai-insights",
+    "description": "Luxury-branded blog website for venture capital and AI insights",
+    "type": "project",
+    "require": {
+        "php": "^7.4|^8.0",
+        "erusev/parsedown": "^1.7"
+    },
+    "autoload": {
+        "files": ["includes/functions.php"]
+    }
+}

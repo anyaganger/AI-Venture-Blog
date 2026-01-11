@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anya Ganger - AI & Venture Capital Explorer</title>
+    <link rel="stylesheet" href="assets/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    <style>
+        /* Custom styles from the React app */
+        .headshot-image {
+            filter: grayscale(100%);
+            transition: filter 0.3s ease;
+        }
+        .headshot-image:hover {
+            filter: grayscale(0%);
+        }
+        .name-cursive {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            font-weight: 400;
+            letter-spacing: 0.02em;
+        }
+        .name-minimalist {
+            font-family: 'Inter', sans-serif;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+        .luxury-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        .luxury-hover {
+            transition: all 0.3s ease;
+        }
+        .luxury-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen">
+        <section class="min-h-screen flex items-center justify-center px-6">
+            <div class="text-center max-w-4xl mx-auto fade-in" data-testid="hero-section">
+                <div class="mb-12">
+                    <div class="w-48 h-48 mx-auto mb-8 rounded-full overflow-hidden luxury-shadow" data-testid="hero-headshot">
+                        <img 
+                            src="assets/anya-headshot.png"
+                            alt="Anya Ganger professional headshot" 
+                            class="w-full h-full object-cover headshot-image"
+                        >
+                    </div>
+                    <h1 class="text-6xl md:text-7xl name-cursive mb-6" data-testid="hero-name" id="homepage-name">
+                        Anya Ganger
+                    </h1>
+                    <p class="text-xl md:text-2xl text-muted-foreground name-minimalist mb-16" data-testid="hero-tagline" id="homepage-tagline">
+                        AI & Venture Capital Explorer
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto" data-testid="navigation-tiles">
+                    <a href="blog/">
+                        <div class="group cursor-pointer luxury-hover" data-testid="tile-blog">
+                            <div class="bg-card p-12 rounded-lg luxury-shadow text-center">
+                                <h3 class="text-2xl font-medium mb-4">AI × Venture Blog</h3>
+                                <p class="text-muted-foreground mb-6">Venture X AI Insights</p>
+                                <span class="inline-flex items-center text-sm font-medium text-accent-foreground">
+                                    Explore insights →
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <div 
+                        class="group cursor-pointer luxury-hover" 
+                        onclick="handleOutreachClick()"
+                        data-testid="tile-outreach"
+                    >
+                        <div class="bg-card p-12 rounded-lg luxury-shadow text-center">
+                            <h3 class="text-2xl font-medium mb-4">AI Outreach Platform</h3>
+                            <p class="text-muted-foreground mb-6">Connect & Engage</p>
+                            <span class="inline-flex items-center text-sm font-medium text-accent-foreground">
+                                Launch platform →
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Load settings and update content
+        async function loadSettings() {
+            try {
+                const defaultSettings = {
+                    'homepage_name': 'Anya Ganger',
+                    'homepage_tagline': 'AI & Venture Capital Explorer',
+                    'homepage_outreach_link': ''
+                };
+                
+                const settings = JSON.parse(localStorage.getItem('siteSettings') || JSON.stringify(defaultSettings));
+                
+                if (settings.homepage_name) {
+                    document.getElementById('homepage-name').textContent = settings.homepage_name;
+                }
+                if (settings.homepage_tagline) {
+                    document.getElementById('homepage-tagline').textContent = settings.homepage_tagline;
+                }
+                
+                // Store outreach link for later use
+                window.outreachLink = settings.homepage_outreach_link;
+            } catch (error) {
+                console.log('Using default settings');
+            }
+        }
+
+        function handleOutreachClick() {
+            if (window.outreachLink && window.outreachLink.trim() !== '') {
+                window.open(window.outreachLink, '_blank');
+            } else {
+                window.location.href = 'coming-soon.html';
+            }
+        }
+
+        // Load settings on page load
+        loadSettings();
+    </script>
+</body>
+</html>

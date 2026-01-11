@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Content Management</title>
+    <link rel="stylesheet" href="../assets/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet">
+    <style>
+        .luxury-shadow {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        }
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <!-- PIN Login Form -->
+    <div id="login-screen" class="min-h-screen bg-muted flex items-center justify-center">
+        <div class="bg-card rounded-lg luxury-shadow p-8 w-full max-w-sm fade-in">
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-light mb-2">Admin Access</h1>
+                <p class="text-muted-foreground text-sm">Enter your 4-digit PIN to continue</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <input
+                        type="password"
+                        id="pin-input"
+                        maxlength="4"
+                        pattern="[0-9]{4}"
+                        inputmode="numeric"
+                        class="w-full px-4 py-3 border border-input bg-background rounded-md text-center text-2xl tracking-widest"
+                        placeholder="****"
+                        autocomplete="off"
+                        required
+                    >
+                </div>
+                <div id="login-error" class="text-red-500 text-sm text-center hidden">Invalid PIN. Please try again.</div>
+                <button
+                    type="submit"
+                    class="w-full bg-primary text-primary-foreground px-4 py-3 rounded-md font-medium hover:bg-primary/90 transition-colors"
+                >
+                    Unlock
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="admin-dashboard" class="min-h-screen bg-muted hidden">
+        <div class="py-12 px-6">
+            <div class="max-w-6xl mx-auto fade-in">
+                <header class="mb-12 flex justify-between items-center" data-testid="admin-header">
+                    <div>
+                        <h1 class="text-3xl font-light mb-2">Content Management</h1>
+                        <p class="text-muted-foreground">Manage your personal website and blog content</p>
+                    </div>
+                    <div class="flex space-x-4">
+                        <button 
+                            onclick="migratePostsToDatabase()"
+                            class="bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors"
+                            data-testid="button-migrate"
+                            id="migrate-btn"
+                            title="One-time migration of localStorage posts to database"
+                        >
+                            Migrate Old Posts
+                        </button>
+                        <button 
+                            onclick="logout()"
+                            class="border border-input bg-background px-4 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+                            data-testid="button-logout"
+                        >
+                            Logout
+                        </button>
+                    </div>
+                </header>
+                
+                <div class="grid lg:grid-cols-4 gap-8">
+                    <aside class="lg:col-span-1">
+                        <nav class="bg-card rounded-lg p-6 luxury-shadow sticky top-6" data-testid="admin-nav">
+                            <ul class="space-y-2">
+                                <li>
+                                    <button 
+                                        onclick="showSection('dashboard')"
+                                        class="w-full text-left px-3 py-2 rounded text-sm transition-colors nav-button"
+                                        data-section="dashboard"
+                                        data-testid="nav-dashboard"
+                                    >
+                                        Dashboard
+                                    </button>
+                                </li>
+                                <li>
+                                    <button 
+                                        onclick="showSection('posts')"
+                                        class="w-full text-left px-3 py-2 rounded text-sm transition-colors nav-button hover:bg-muted"
+                                        data-section="posts"
+                                        data-testid="nav-posts"
+                                    >
+                                        Manage Posts
+                                    </button>
+                                </li>
+                                <li>
+                                    <button 
+                                        onclick="showSection('new-post')"
+                                        class="w-full text-left px-3 py-2 rounded text-sm transition-colors nav-button hover:bg-muted"
+                                        data-section="new-post"
+                                        data-testid="nav-new-post"
+                                    >
+                                        New Post
+                                    </button>
+                                </li>
+                                <li>
+                                    <button 
+                                        onclick="showSection('site-settings')"
+                                        class="w-full text-left px-3 py-2 rounded text-sm transition-colors nav-button hover:bg-muted"
+                                        data-section="site-settings"
+                                        data-testid="nav-settings"
+                                    >
+                                        Site Settings
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    </aside>
+                    
+                    <main class="lg:col-span-3">
+                        <!-- Dashboard Section -->
+                        <div id="section-dashboard" class="admin-section" data-testid="section-dashboard">
+                            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="pt-6 p-6">
+                                        <h3 class="text-sm font-medium text-muted-foreground mb-2">Total Posts</h3>
+                                        <p class="text-2xl font-light" data-testid="stat-total-posts" id="stat-total">0</p>
+                                    </div>
+                                </div>
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="pt-6 p-6">
+                                        <h3 class="text-sm font-medium text-muted-foreground mb-2">Published</h3>
+                                        <p class="text-2xl font-light" data-testid="stat-published-posts" id="stat-published">0</p>
+                                    </div>
+                                </div>
+                                <div class="bg-card rounded-lg luxury-shadow">
+                                    <div class="pt-6 p-6">
+                                        <h3 class="text-sm font-medium text-muted-foreground mb-2">Categories</h3>
+                                        <p class="text-2xl font-light" data-testid="stat-categories">4</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-card rounded-lg luxury-shadow">
+                                <div class="p-6 border-b border-border">
+                                    <h2 class="text-xl font-medium">Recent Posts</h2>
+                                </div>
+                                <div class="p-6">
+                                    <div id="recent-posts" data-testid="recent-posts">
+                                        <p class="text-muted-foreground">Loading posts...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Other sections would go here -->
+                        <div id="section-posts" class="admin-section hidden" data-testid="section-posts">
+                            <div class="bg-card rounded-lg luxury-shadow">
+                                <div class="p-6 border-b border-border flex justify-between items-center">
+                                    <h2 class="text-xl font-medium">Manage Posts</h2>
+                                    <button 
+                                        onclick="showSection('new-post')"
+                                        class="bg-primary text-primary-foreground px-4 py-2 rounded-md text-sm font-medium hover:bg-primary/90 transition-colors"
+                                        data-testid="button-new-post"
+                                    >
+                                        New Post
+                                    </button>
+                                </div>
+                                <div class="p-6">
+                                    <div id="posts-list" data-testid="posts-list">
+                                        <p class="text-muted-foreground">Loading posts...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="section-new-post" class="admin-section hidden" data-testid="section-new-post">
+                            <div class="bg-card rounded-lg luxury-shadow">
+                                <div class="p-6 border-b border-border">
+                                    <h2 class="text-xl font-medium">Create New Post</h2>
+                                </div>
+                                <div class="p-6">
+                                    <form id="post-form" class="space-y-6">
+                                        <div>
+                                            <label class="text-sm font-medium mb-2 block">Title</label>
+                                            <input 
+                                                type="text" 
+                                                id="post_title" 
+                                                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                placeholder="Enter post title..."
+                                                required
+                                            >
+                                        </div>
+                                        
+                                        <div class="grid md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label class="text-sm font-medium mb-2 block">Category</label>
+                                                <select 
+                                                    id="post_category" 
+                                                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                    required
+                                                >
+                                                    <option value="">Select category</option>
+                                                    <option value="AI & Machine Learning">AI & Machine Learning</option>
+                                                    <option value="Venture Capital">Venture Capital</option>
+                                                    <option value="Startups">Startups</option>
+                                                    <option value="Technology">Technology</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium mb-2 block">Read Time (minutes)</label>
+                                                <input 
+                                                    type="number" 
+                                                    id="post_read_time" 
+                                                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                    placeholder="5"
+                                                    min="1"
+                                                    required
+                                                >
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium mb-2 block">Date</label>
+                                                <input 
+                                                    type="date" 
+                                                    id="post_date" 
+                                                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                    required
+                                                >
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="text-sm font-medium mb-2 block">Excerpt</label>
+                                            <textarea 
+                                                id="post_excerpt" 
+                                                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm h-24"
+                                                placeholder="Brief description or excerpt..."
+                                                required
+                                            ></textarea>
+                                        </div>
+                                        
+                                        <div>
+                                            <label class="text-sm font-medium mb-2 block">Content (Markdown)</label>
+                                            <textarea 
+                                                id="post_content" 
+                                                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm h-80 font-mono"
+                                                placeholder="# Your post title
+
+Write your content in Markdown format..."
+                                                required
+                                            ></textarea>
+                                        </div>
+                                        
+                                        <div class="flex items-center space-x-3">
+                                            <input 
+                                                type="checkbox" 
+                                                id="post_published" 
+                                                class="rounded border border-input"
+                                            >
+                                            <label for="post_published" class="text-sm font-normal">
+                                                Publish immediately
+                                            </label>
+                                        </div>
+                                        
+                                        <div class="flex space-x-4">
+                                            <button 
+                                                type="submit" 
+                                                class="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors"
+                                                id="post-submit-btn"
+                                            >
+                                                Create Post
+                                            </button>
+                                            <button 
+                                                type="button" 
+                                                onclick="clearPostForm()"
+                                                class="border border-input bg-background px-6 py-2 rounded-md font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+                                            >
+                                                Clear
+                                            </button>
+                                            <button 
+                                                type="button" 
+                                                onclick="cancelEdit()"
+                                                class="border border-input bg-background px-6 py-2 rounded-md font-medium hover:bg-accent hover:text-accent-foreground transition-colors hidden"
+                                                id="cancel-edit-btn"
+                                            >
+                                                Cancel Edit
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="section-site-settings" class="admin-section hidden" data-testid="section-site-settings">
+                            <div class="bg-card rounded-lg luxury-shadow">
+                                <div class="p-6 border-b border-border">
+                                    <h2 class="text-xl font-medium">Site Settings</h2>
+                                </div>
+                                <div class="p-6">
+                                    <form id="settings-form" class="space-y-6">
+                                        <div class="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="text-sm font-medium mb-2 block">Homepage Name</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="homepage_name" 
+                                                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                >
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium mb-2 block">Homepage Tagline</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="homepage_tagline" 
+                                                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                >
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium mb-2 block">Outreach Platform Link</label>
+                                            <input 
+                                                type="url" 
+                                                id="homepage_outreach_link" 
+                                                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                placeholder="https://..."
+                                            >
+                                        </div>
+                                        <div class="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="text-sm font-medium mb-2 block">Blog Title</label>
+                                                <input 
+                                                    type="text" 
+                                                    id="blog_title" 
+                                                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                >
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium mb-2 block">Author LinkedIn</label>
+                                                <input 
+                                                    type="url" 
+                                                    id="author_linkedin" 
+                                                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                    placeholder="https://linkedin.com/in/..."
+                                                >
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium mb-2 block">Blog Tagline</label>
+                                            <textarea 
+                                                id="blog_tagline" 
+                                                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm h-24"
+                                            ></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium mb-2 block">Author Bio</label>
+                                            <textarea 
+                                                id="author_bio" 
+                                                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm h-24"
+                                            ></textarea>
+                                        </div>
+                                        <button 
+                                            type="submit" 
+                                            class="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors"
+                                        >
+                                            Save Settings
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentToken = localStorage.getItem('auth_token');
+        let currentSection = 'dashboard';
+        const API_BASE = 'https://anya.ganger.com';
+
+        // Check authentication on page load
+        checkAuthentication();
+
+        async function checkAuthentication() {
+            if (currentToken) {
+                // Verify existing token
+                try {
+                    const response = await fetch(`${API_BASE}/api/auth.php?action=verify`, {
+                        headers: { 'Authorization': currentToken }
+                    });
+                    if (response.ok) {
+                        showDashboard();
+                        return;
+                    }
+                } catch (error) {
+                    console.log('Token verification failed');
+                }
+                // Token invalid, clear it
+                localStorage.removeItem('auth_token');
+                currentToken = null;
+            }
+            // Show login screen
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+        }
+
+        // Handle PIN login form submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const pin = document.getElementById('pin-input').value;
+            const errorDiv = document.getElementById('login-error');
+
+            try {
+                const response = await fetch(`${API_BASE}/api/auth.php?action=login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: pin })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    currentToken = data.sessionToken;
+                    localStorage.setItem('auth_token', currentToken);
+                    errorDiv.classList.add('hidden');
+                    showDashboard();
+                } else {
+                    errorDiv.classList.remove('hidden');
+                    document.getElementById('pin-input').value = '';
+                    document.getElementById('pin-input').focus();
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                errorDiv.textContent = 'Connection error. Please try again.';
+                errorDiv.classList.remove('hidden');
+            }
+        });
+
+        function showDashboard() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-dashboard').classList.remove('hidden');
+            loadDashboardData();
+            loadSettings();
+        }
+
+        function logout() {
+            localStorage.removeItem('auth_token');
+            currentToken = null;
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('admin-dashboard').classList.add('hidden');
+            document.getElementById('pin-input').value = '';
+        }
+
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
+            
+            // Show selected section
+            document.getElementById(`section-${section}`).classList.remove('hidden');
+            
+            // Update nav buttons
+            document.querySelectorAll('.nav-button').forEach(btn => {
+                btn.classList.remove('bg-accent', 'text-accent-foreground');
+                btn.classList.add('hover:bg-muted');
+            });
+            
+            document.querySelector(`[data-section="${section}"]`).classList.add('bg-accent', 'text-accent-foreground');
+            document.querySelector(`[data-section="${section}"]`).classList.remove('hover:bg-muted');
+            
+            currentSection = section;
+            
+            // Load section-specific data
+            if (section === 'posts') {
+                loadPostsList();
+            } else if (section === 'new-post') {
+                // Set default date when creating new post
+                if (!document.getElementById('post-form').dataset.editId) {
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('post_date').value = today;
+                }
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Load posts from database instead of localStorage
+                const response = await fetch('https://anya.ganger.com/api/admin-posts.php');
+                const posts = response.ok ? await response.json() : [];
+                
+                document.getElementById('stat-total').textContent = posts.length;
+                document.getElementById('stat-published').textContent = posts.filter(p => p.published).length;
+                
+                const recentPostsDiv = document.getElementById('recent-posts');
+                if (posts.length > 0) {
+                    recentPostsDiv.innerHTML = posts.slice(0, 5).map(post => `
+                        <div class="flex items-center justify-between py-3 border-b border-border last:border-b-0">
+                            <div>
+                                <h3 class="font-medium">${post.title}</h3>
+                                <p class="text-sm text-muted-foreground">
+                                    ${post.published ? 'Published' : 'Draft'} • ${post.category}
+                                </p>
+                            </div>
+                            <button 
+                                class="text-sm px-3 py-1 hover:bg-muted rounded transition-colors"
+                                data-testid="button-edit-${post.id}"
+                                onclick="editPost('${post.id}')"
+                            >
+                                Edit
+                            </button>
+                        </div>
+                    `).join('');
+                } else {
+                    recentPostsDiv.innerHTML = '<p class="text-muted-foreground">No posts created yet.</p>';
+                }
+            } catch (error) {
+                document.getElementById('recent-posts').innerHTML = '<p class="text-muted-foreground">Failed to load posts.</p>';
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                // Load settings from database instead of localStorage
+                const response = await authenticatedFetch('/api/settings');
+                const settings = response.ok ? await response.json() : {
+                    'homepage_name': 'Anya Ganger',
+                    'homepage_tagline': 'AI & Venture Capital Explorer',
+                    'homepage_outreach_link': '',
+                    'blog_title': 'Venture X AI Insights',
+                    'blog_tagline': 'Exploring the intersection of AI and venture capital',
+                    'author_bio': 'AI and venture capital enthusiast exploring breakthrough technologies.',
+                    'author_linkedin': ''
+                };
+                
+                Object.keys(settings).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        element.value = settings[key];
+                    }
+                });
+            } catch (error) {
+                console.log('Failed to load settings');
+            }
+        }
+
+        document.getElementById('settings-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const settings = {};
+            
+            // Get all form fields
+            ['homepage_name', 'homepage_tagline', 'homepage_outreach_link', 'blog_title', 'blog_tagline', 'author_bio', 'author_linkedin'].forEach(field => {
+                settings[field] = document.getElementById(field).value;
+            });
+            
+            try {
+                const response = await authenticatedFetch('/api/admin/settings', {
+                    method: 'POST',
+                    body: JSON.stringify(settings)
+                });
+                
+                if (response.ok) {
+                    alert('Settings updated successfully!');
+                } else {
+                    throw new Error('Failed to save settings');
+                }
+            } catch (error) {
+                alert('Failed to update settings');
+            }
+        });
+
+        // Handle post form submission
+        document.getElementById('post-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const isEditing = document.getElementById('post-submit-btn').textContent === 'Update Post';
+            const postId = isEditing ? document.getElementById('post-form').dataset.editId : null;
+            
+            const postData = {
+                title: document.getElementById('post_title').value,
+                category: document.getElementById('post_category').value,
+                readTime: parseInt(document.getElementById('post_read_time').value),
+                excerpt: document.getElementById('post_excerpt').value,
+                content: document.getElementById('post_content').value,
+                published: document.getElementById('post_published').checked,
+                slug: generateSlug(document.getElementById('post_title').value),
+                order: 0 // Default order
+            };
+            
+            try {
+                let response;
+                
+                if (isEditing && postId) {
+                    // Update existing post
+                    response = await authenticatedFetch(`/api/admin/posts/${postId}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify(postData)
+                    });
+                    
+                    if (response.ok) {
+                        alert('Post updated successfully!');
+                    } else {
+                        throw new Error('Failed to update post');
+                    }
+                } else {
+                    // Create new post
+                    const authToken = localStorage.getItem('auth_token');
+                    response = await fetch(`${API_BASE}/api/create-post.php`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': authToken
+                        },
+                        body: JSON.stringify(postData)
+                    });
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            alert('Post created successfully!');
+                        } else {
+                            throw new Error(result.error || 'Failed to create post');
+                        }
+                    } else {
+                        throw new Error('Failed to create post');
+                    }
+                }
+                
+                clearPostForm();
+                showSection('posts');
+                loadPostsList(); // Refresh posts list
+                loadDashboardData(); // Refresh dashboard
+            } catch (error) {
+                alert('Failed to save post: ' + error.message);
+            }
+        });
+
+        function clearPostForm() {
+            document.getElementById('post-form').reset();
+            document.getElementById('post-submit-btn').textContent = 'Create Post';
+            document.getElementById('cancel-edit-btn').classList.add('hidden');
+            document.getElementById('post-form').removeAttribute('data-edit-id');
+            document.getElementById('section-new-post').querySelector('h2').textContent = 'Create New Post';
+            
+            // Set default date to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('post_date').value = today;
+        }
+
+        function generateSlug(title) {
+            return title
+                .toLowerCase()
+                .replace(/[^a-z0-9 -]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim('-');
+        }
+
+        // Helper function to make authenticated API calls
+        async function authenticatedFetch(url, options = {}) {
+            const authToken = localStorage.getItem('auth_token');
+
+            if (!authToken) {
+                // Not authenticated, redirect to login
+                logout();
+                throw new Error('Not authenticated');
+            }
+
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': authToken
+                },
+                ...options
+            };
+
+            if (options.headers) {
+                defaultOptions.headers = { ...defaultOptions.headers, ...options.headers };
+            }
+
+            const response = await fetch(`${API_BASE}${url}`, defaultOptions);
+
+            // If unauthorized, force re-login
+            if (response.status === 401 || response.status === 403) {
+                logout();
+                throw new Error('Session expired');
+            }
+
+            return response;
+        }
+
+        function updateHomepage(settings) {
+            // Update homepage with new settings
+            try {
+                const homeNameElement = document.getElementById('homepage-name');
+                const homeTaglineElement = document.getElementById('homepage-tagline');
+                
+                if (homeNameElement) homeNameElement.textContent = settings.homepage_name;
+                if (homeTaglineElement) homeTaglineElement.textContent = settings.homepage_tagline;
+            } catch (error) {
+                console.log('Could not update homepage elements');
+            }
+        }
+
+        function updateBlogPage() {
+            // This would update the blog page with new posts
+            // In a full implementation, you'd modify the blog/index.html file
+            console.log('Blog page should be updated with new posts');
+        }
+
+        async function editPost(postId) {
+            try {
+                const response = await fetch('https://anya.ganger.com/api/admin-posts.php');
+                const posts = response.ok ? await response.json() : [];
+                const post = posts.find(p => p.id === postId);
+                
+                if (post) {
+                    // Populate form with post data
+                    document.getElementById('post_title').value = post.title;
+                    document.getElementById('post_category').value = post.category;
+                    document.getElementById('post_read_time').value = post.readTime;
+                    document.getElementById('post_excerpt').value = post.excerpt;
+                    document.getElementById('post_content').value = post.content;
+                    document.getElementById('post_published').checked = post.published;
+                    
+                    // Set date from publishedAt or createdAt
+                    const postDate = post.publishedAt 
+                        ? new Date(post.publishedAt).toISOString().split('T')[0]
+                        : new Date(post.createdAt).toISOString().split('T')[0];
+                    document.getElementById('post_date').value = postDate;
+                    
+                    // Update form state
+                    document.getElementById('post-submit-btn').textContent = 'Update Post';
+                    document.getElementById('cancel-edit-btn').classList.remove('hidden');
+                    document.getElementById('post-form').dataset.editId = postId;
+                    document.getElementById('section-new-post').querySelector('h2').textContent = 'Edit Post';
+                    
+                    // Switch to new post section
+                    showSection('new-post');
+                } else {
+                    alert('Post not found');
+                }
+            } catch (error) {
+                console.error('Failed to load post for editing:', error);
+                alert('Failed to load post for editing');
+            }
+        }
+        
+        function cancelEdit() {
+            clearPostForm();
+            showSection('dashboard');
+        }
+        
+        async function loadPostsList() {
+            try {
+                const response = await fetch('https://anya.ganger.com/api/admin-posts.php');
+                const posts = response.ok ? await response.json() : [];
+                const postsListDiv = document.getElementById('posts-list');
+                
+                if (posts.length > 0) {
+                    postsListDiv.innerHTML = `
+                        <div class="space-y-4">
+                            ${posts.map(post => {
+                                const dateText = post.publishedAt 
+                                    ? new Date(post.publishedAt).toLocaleDateString()
+                                    : (post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'No date set');
+                                return `
+                                    <div class="flex items-center justify-between p-4 border border-border rounded-lg">
+                                        <div class="flex-1">
+                                            <h3 class="font-medium">${post.title}</h3>
+                                            <p class="text-sm text-muted-foreground mt-1">
+                                                ${post.published ? 'Published' : 'Draft'} • ${post.category} • ${dateText}
+                                            </p>
+                                            <p class="text-sm text-muted-foreground mt-1 max-w-2xl">${post.excerpt}</p>
+                                        </div>
+                                        <div class="flex space-x-2 ml-4">
+                                            <button 
+                                                onclick="editPost('${post.id}')"
+                                                class="text-sm px-3 py-1 hover:bg-muted rounded transition-colors border border-input"
+                                            >
+                                                Edit
+                                            </button>
+                                            <button 
+                                                onclick="deletePost('${post.id}')"
+                                                class="text-sm px-3 py-1 hover:bg-destructive hover:text-destructive-foreground rounded transition-colors border border-input text-destructive"
+                                            >
+                                                Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                } else {
+                    postsListDiv.innerHTML = '<p class="text-muted-foreground">No posts created yet.</p>';
+                }
+            } catch (error) {
+                console.error('Failed to load posts:', error);
+                document.getElementById('posts-list').innerHTML = '<p class="text-muted-foreground">Failed to load posts.</p>';
+            }
+        }
+        
+        async function deletePost(postId) {
+            if (confirm('Are you sure you want to delete this post?')) {
+                try {
+                    const response = await authenticatedFetch(`/api/admin/posts/${postId}`, {
+                        method: 'DELETE'
+                    });
+                    
+                    if (response.ok) {
+                        loadPostsList();
+                        loadDashboardData();
+                        alert('Post deleted successfully!');
+                    } else {
+                        throw new Error('Failed to delete post');
+                    }
+                } catch (error) {
+                    console.error('Delete post error:', error);
+                    alert('Failed to delete post');
+                }
+            }
+        }
+
+        // One-time migration function (can be removed after migration)
+        async function migratePostsToDatabase() {
+            const migrateBtn = document.getElementById('migrate-btn');
+            const originalText = migrateBtn.textContent;
+            
+            try {
+                migrateBtn.textContent = 'Checking...';
+                migrateBtn.disabled = true;
+                
+                // Get posts from localStorage
+                const localPosts = JSON.parse(localStorage.getItem('blogPosts') || '[]');
+                
+                if (localPosts.length === 0) {
+                    alert('No posts found in localStorage to migrate. System is now fully database-powered!');
+                    // Hide the migration button since it's not needed anymore
+                    migrateBtn.style.display = 'none';
+                    return;
+                }
+                
+                migrateBtn.textContent = 'Syncing...';
+                let successCount = 0;
+                let errorCount = 0;
+                
+                // Migrate each post to database
+                for (const post of localPosts) {
+                    try {
+                        const postData = {
+                            title: post.title,
+                            category: post.category,
+                            readTime: parseInt(post.readTime),
+                            excerpt: post.excerpt,
+                            content: post.content,
+                            published: Boolean(post.published),
+                            slug: post.slug || generateSlug(post.title),
+                            order: post.order || 0
+                        };
+                        
+                        const response = await authenticatedFetch('/api/admin/posts', {
+                            method: 'POST',
+                            body: JSON.stringify(postData)
+                        });
+                        
+                        if (response.ok) {
+                            successCount++;
+                        } else {
+                            console.error('Failed to migrate post:', post.title);
+                            errorCount++;
+                        }
+                    } catch (error) {
+                        console.error('Error migrating post:', post.title, error);
+                        errorCount++;
+                    }
+                }
+                
+                if (successCount > 0) {
+                    alert(`Successfully migrated ${successCount} posts to database! System is now fully real-time across all devices.`);
+                    // Clear localStorage after successful migration
+                    localStorage.removeItem('blogPosts');
+                    // Hide migration button - no longer needed
+                    migrateBtn.style.display = 'none';
+                    loadDashboardData();
+                    loadPostsList();
+                }
+                
+                if (errorCount > 0) {
+                    alert(`${errorCount} posts failed to migrate. Check console for details.`);
+                }
+                
+            } catch (error) {
+                console.error('Migration failed:', error);
+                alert('Failed to migrate posts to database. Please try again.');
+            } finally {
+                migrateBtn.textContent = originalText;
+                migrateBtn.disabled = false;
+            }
+        }
+
+        // Initialize dashboard section
+        showSection('dashboard');
+    </script>
+</body>
+</html>

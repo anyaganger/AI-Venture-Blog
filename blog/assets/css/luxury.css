@@ -1,0 +1,223 @@
+/* Luxury aesthetic enhancements */
+
+/* Silk texture background */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(212, 175, 55, 0.02) 10px,
+            rgba(212, 175, 55, 0.02) 20px
+        ),
+        radial-gradient(
+            circle at 20% 80%,
+            rgba(245, 230, 232, 0.3) 0%,
+            transparent 50%
+        ),
+        radial-gradient(
+            circle at 80% 20%,
+            rgba(247, 231, 206, 0.2) 0%,
+            transparent 50%
+        );
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Monogram-inspired decoration */
+.site-header::before {
+    content: '❋';
+    position: absolute;
+    top: var(--spacing-md);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2rem;
+    color: var(--color-gold);
+    opacity: 0.3;
+}
+
+/* Editorial layout elements */
+.post-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.post-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 0;
+    background-color: var(--color-gold);
+    transition: height 0.5s ease;
+}
+
+.post-card:hover::before {
+    height: 100%;
+}
+
+/* Gold accents */
+.post-category {
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.post-category::before {
+    content: '◆';
+    position: absolute;
+    left: 0;
+    color: var(--color-gold);
+}
+
+/* Asymmetrical layouts */
+.posts-grid > .post-card:nth-child(3n+1) {
+    grid-column: span 2;
+}
+
+@media (max-width: 1024px) {
+    .posts-grid > .post-card:nth-child(3n+1) {
+        grid-column: span 1;
+    }
+}
+
+/* Premium hover effects */
+.post-title a {
+    background-image: linear-gradient(
+        to right,
+        var(--color-gold) 0%,
+        var(--color-gold) 100%
+    );
+    background-size: 0% 2px;
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    transition: background-size 0.4s ease;
+}
+
+.post-title a:hover {
+    background-size: 100% 2px;
+}
+
+/* Author section luxury styling */
+.author-profile {
+    position: relative;
+    padding: var(--spacing-lg);
+    background: linear-gradient(135deg, rgba(253, 251, 247, 0.5), rgba(247, 231, 206, 0.2));
+}
+
+.author-profile::before,
+.author-profile::after {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    border: 1px solid var(--color-gold);
+    opacity: 0.1;
+}
+
+.author-profile::before {
+    top: -20px;
+    left: -20px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.author-profile::after {
+    bottom: -20px;
+    right: -20px;
+    border-left: none;
+    border-top: none;
+}
+
+/* Premium typography */
+.site-title {
+    position: relative;
+    display: inline-block;
+}
+
+.site-title::after {
+    content: attr(data-text);
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    color: var(--color-gold);
+    opacity: 0.1;
+    z-index: -1;
+}
+
+/* Elegant dividers */
+.section-title {
+    padding: 0 var(--spacing-lg);
+}
+
+.section-title::before,
+.section-title::after {
+    content: '❦';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-gold);
+    font-size: 1.5rem;
+    opacity: 0.3;
+}
+
+.section-title::before {
+    left: 0;
+}
+
+.section-title::after {
+    right: 0;
+}
+
+/* Button luxury styling */
+.button {
+    position: relative;
+    overflow: hidden;
+}
+
+.button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.3), transparent);
+    transition: left 0.6s ease;
+}
+
+.button:hover::before {
+    left: 100%;
+}
+
+/* Subtle animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.profile-picture {
+    animation: float 6s ease-in-out infinite;
+}
+
+/* Loading state */
+.post-card {
+    animation: fadeIn 0.6s ease forwards;
+    opacity: 0;
+}
+
+@keyframes fadeIn {
+    to { opacity: 1; }
+}
+
+.post-card:nth-child(1) { animation-delay: 0.1s; }
+.post-card:nth-child(2) { animation-delay: 0.2s; }
+.post-card:nth-child(3) { animation-delay: 0.3s; }
+.post-card:nth-child(4) { animation-delay: 0.4s; }
+.post-card:nth-child(5) { animation-delay: 0.5s; }

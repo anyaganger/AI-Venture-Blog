@@ -1,0 +1,38 @@
+name: Deploy to FTP
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to FTP Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ftp.ganger.com
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /public_html/ganger.com/anya/
+          exclude: |
+            **/.git*
+            **/.git*/**
+            .settings
+            _notes/**
+            .ftp-deploy-sync-state.json
+            .ftpquota
+            node_modules/**
+            .env
+            *.log
+            logs/**

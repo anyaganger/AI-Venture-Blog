@@ -1,0 +1,15 @@
+{
+  "name": "anya-ganger-website",
+  "version": "1.0.0",
+  "description": "Personal website and blog for Anya Ganger",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "keywords": ["personal", "website", "blog", "ai", "venture"],
+  "author": "Anya Ganger"
+}
