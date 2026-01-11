@@ -25,51 +25,59 @@ try {
 
     // Force restore - clear existing and reimport all
     if (isset($_GET['action']) && $_GET['action'] === 'force') {
-        // Clear existing posts (DELETE instead of TRUNCATE for compatibility)
-        $pdo->prepare("DELETE FROM posts")->execute();
+        try {
+            // Clear existing posts
+            $pdo->prepare("DELETE FROM posts")->execute();
 
-        // Get category names mapping
-        $stmt = $pdo->query("SELECT id, name FROM categories");
-        $categories = [];
-        while ($row = $stmt->fetch()) {
-            $categories[$row['id']] = $row['name'];
-        }
+            // Get category names mapping from categories_backup too
+            $categories = [];
+            $stmt = $pdo->query("SELECT id, name FROM categories");
+            while ($row = $stmt->fetch()) {
+                $categories[$row['id']] = $row['name'];
+            }
+            // Also check categories_backup
+            $stmt = $pdo->query("SELECT id, name FROM categories_backup");
+            while ($row = $stmt->fetch()) {
+                if (!isset($categories[$row['id']])) {
+                    $categories[$row['id']] = $row['name'];
+                }
+            }
 
-        // Get all backup posts
-        $stmt = $pdo->query("
-            SELECT pb.*, c.name as category_name
-            FROM posts_backup pb
-            LEFT JOIN categories c ON pb.category_id = c.id
-        ");
-        $backupPosts = $stmt->fetchAll();
+            // Get all backup posts
+            $stmt = $pdo->query("SELECT * FROM posts_backup");
+            $backupPosts = $stmt->fetchAll();
 
-        $restored = 0;
-        foreach ($backupPosts as $post) {
-            $categoryName = $post['category_name'] ?? $categories[$post['category_id'] ?? 0] ?? 'AI & Machine Learning';
-            $published = ($post['status'] === 'published') ? 1 : 0;
+            $restored = 0;
+            foreach ($backupPosts as $post) {
+                $categoryName = $categories[$post['category_id'] ?? 0] ?? 'AI & Machine Learning';
+                $published = (isset($post['status']) && $post['status'] === 'published') ? 1 : 1;
 
-            $stmt = $pdo->prepare("
-                INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ");
-            $stmt->execute([
-                $post['title'],
-                $post['slug'],
-                $post['content'],
-                $post['excerpt'],
-                $categoryName,
-                $post['read_time'] ?? 5,
-                $published,
-                0
+                $stmt = $pdo->prepare("
+                    INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ");
+                $stmt->execute([
+                    $post['title'] ?? 'Untitled',
+                    $post['slug'] ?? 'untitled-' . time(),
+                    $post['content'] ?? '',
+                    $post['excerpt'] ?? '',
+                    $categoryName,
+                    $post['read_time'] ?? 5,
+                    $published,
+                    0
+                ]);
+                $restored++;
+            }
+
+            echo json_encode([
+                'success' => true,
+                'message' => "Force restored all $restored posts from backup",
+                'restored' => $restored
             ]);
-            $restored++;
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Force restore failed: ' . $e->getMessage()]);
         }
-
-        echo json_encode([
-            'success' => true,
-            'message' => "Force restored all $restored posts from backup",
-            'restored' => $restored
-        ]);
         exit;
     }
 
