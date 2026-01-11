@@ -38,9 +38,16 @@ try {
 
     $restored = 0;
     $errors = [];
-    foreach ($pdo->query("SELECT * FROM posts_backup")->fetchAll() as $p) {
+    $debug = [];
+
+    $backupPosts = $pdo->query("SELECT * FROM posts_backup")->fetchAll(PDO::FETCH_ASSOC);
+    $debug['backup_count'] = count($backupPosts);
+
+    foreach ($backupPosts as $i => $p) {
         $cat = $cats[$p['category_id']] ?? 'General';
         $id = uuid();
+
+        $debug['post_' . $i] = ['id' => $id, 'slug' => $p['slug']];
 
         // Escape values
         $title = $pdo->quote($p['title']);
@@ -55,12 +62,15 @@ try {
                     VALUES ('$id', $title, $slug, $content, $excerpt, $catQ, $rt, 1, 0)";
             $pdo->query($sql);
             $restored++;
+            $debug['post_' . $i]['status'] = 'ok';
         } catch (PDOException $e) {
             $errors[] = $p['slug'] . ': ' . $e->getMessage();
+            $debug['post_' . $i]['status'] = 'error';
+            $debug['post_' . $i]['error'] = $e->getMessage();
         }
     }
 
-    echo json_encode(['restored' => $restored, 'errors' => $errors]);
+    echo json_encode(['restored' => $restored, 'errors' => $errors, 'debug' => $debug]);
 } catch (PDOException $e) {
     echo json_encode(['error' => $e->getMessage()]);
 }
