@@ -15,6 +15,17 @@ if (!isset($_GET['go'])) {
     exit;
 }
 
+// Generate UUID
+function uuid() {
+    return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+        mt_rand(0, 0xffff),
+        mt_rand(0, 0x0fff) | 0x4000,
+        mt_rand(0, 0x3fff) | 0x8000,
+        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+    );
+}
+
 // Do the restore
 try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -29,9 +40,10 @@ try {
     $errors = [];
     foreach ($pdo->query("SELECT * FROM posts_backup")->fetchAll() as $p) {
         $cat = $cats[$p['category_id']] ?? 'General';
+        $id = uuid();
         try {
-            $stmt = $pdo->prepare("INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order) VALUES (?,?,?,?,?,?,1,0)");
-            $stmt->execute([$p['title'], $p['slug'], $p['content'], $p['excerpt'], $cat, $p['read_time'] ?? 5]);
+            $stmt = $pdo->prepare("INSERT INTO posts (id, title, slug, content, excerpt, category, read_time, published, post_order) VALUES (?,?,?,?,?,?,?,1,0)");
+            $stmt->execute([$id, $p['title'], $p['slug'], $p['content'], $p['excerpt'], $cat, $p['read_time'] ?? 5]);
             $restored++;
         } catch (PDOException $e) {
             $errors[] = $p['slug'] . ': ' . $e->getMessage();
