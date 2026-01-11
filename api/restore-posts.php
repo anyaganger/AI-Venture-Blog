@@ -26,65 +26,50 @@ try {
     $stmt = $pdo->query("DESCRIBE posts");
     $postsStructure = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-    // Force restore - use simple SQL copy
+    // Force restore
     if (isset($_GET['action']) && $_GET['action'] === 'force') {
+        $debug = ['step' => 'start'];
+
         try {
-            // Step 1: Delete existing posts
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $debug['step'] = 'delete';
             $pdo->query("DELETE FROM posts");
-        } catch (PDOException $e) {
-            echo json_encode(['error' => 'DELETE failed: ' . $e->getMessage()]);
-            exit;
-        }
 
-        // Step 2: Get backup posts
-        $stmt = $pdo->query("SELECT * FROM posts_backup");
-        $backupPosts = $stmt->fetchAll();
+            $debug['step'] = 'get_backup';
+            $stmt = $pdo->query("SELECT * FROM posts_backup");
+            $backupPosts = $stmt->fetchAll();
+            $debug['backup_count'] = count($backupPosts);
 
-        // Step 3: Get categories
-        $catStmt = $pdo->query("SELECT id, name FROM categories");
-        $cats = [];
-        foreach ($catStmt->fetchAll() as $c) {
-            $cats[$c['id']] = $c['name'];
-        }
-
-        // Step 4: Insert each post with individual error handling
-        $count = 0;
-        $errors = [];
-        $success = [];
-
-        foreach ($backupPosts as $i => $bp) {
-            $cat = isset($bp['category_id']) && isset($cats[$bp['category_id']])
-                ? $cats[$bp['category_id']]
-                : 'AI & Machine Learning';
-
-            $slug = !empty($bp['slug']) ? $bp['slug'] : 'post-' . ($i + 1);
-            $title = !empty($bp['title']) ? $bp['title'] : 'Untitled Post';
-
-            try {
-                $ins = $pdo->prepare("INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order) VALUES (?,?,?,?,?,?,1,0)");
-                $ins->execute([
-                    $title,
-                    $slug,
-                    $bp['content'] ?? '',
-                    $bp['excerpt'] ?? '',
-                    $cat,
-                    $bp['read_time'] ?? 5
-                ]);
-                $count++;
-                $success[] = $title;
-            } catch (PDOException $e) {
-                $errors[] = "$title: " . $e->getMessage();
+            $debug['step'] = 'get_categories';
+            $catStmt = $pdo->query("SELECT id, name FROM categories");
+            $cats = [];
+            foreach ($catStmt->fetchAll() as $c) {
+                $cats[$c['id']] = $c['name'];
             }
-        }
+            $debug['cat_count'] = count($cats);
 
-        echo json_encode([
-            'success' => true,
-            'restored' => $count,
-            'total_backup' => count($backupPosts),
-            'success_titles' => $success,
-            'errors' => $errors
-        ]);
+            $debug['step'] = 'inserting';
+            $count = 0;
+            $errors = [];
+
+            foreach ($backupPosts as $i => $bp) {
+                $cat = $cats[$bp['category_id'] ?? 0] ?? 'AI & Machine Learning';
+                $slug = $bp['slug'] ?: 'post-' . ($i + 1);
+                $title = $bp['title'] ?: 'Untitled';
+
+                try {
+                    $ins = $pdo->prepare("INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order) VALUES (?,?,?,?,?,?,1,0)");
+                    $ins->execute([$title, $slug, $bp['content'] ?? '', $bp['excerpt'] ?? '', $cat, $bp['read_time'] ?? 5]);
+                    $count++;
+                } catch (PDOException $e) {
+                    $errors[] = $slug . ': ' . $e->getMessage();
+                }
+            }
+
+            echo json_encode(['success' => true, 'restored' => $count, 'errors' => $errors, 'debug' => $debug]);
+
+        } catch (PDOException $e) {
+            echo json_encode(['error' => $e->getMessage(), 'debug' => $debug]);
+        }
         exit;
     }
 
