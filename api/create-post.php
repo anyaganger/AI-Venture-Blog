@@ -17,38 +17,25 @@ checkAuth();
 try {
     $input = json_decode(file_get_contents('php://input'), true);
     $pdo = getDB();
-    
-    // Get or create category
-    $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = ?");
-    $stmt->execute([$input['category']]);
-    $categoryRow = $stmt->fetch();
-    
-    if (!$categoryRow) {
-        $stmt = $pdo->prepare("INSERT INTO categories (name) VALUES (?)");
-        $stmt->execute([$input['category']]);
-        $categoryId = $pdo->lastInsertId();
-    } else {
-        $categoryId = $categoryRow['id'];
-    }
-    
-    // Create post
-    $status = $input['published'] ? 'published' : 'draft';
-    
+
+    // Create post with direct category name
+    $published = $input['published'] ? 1 : 0;
+
     $stmt = $pdo->prepare("
-        INSERT INTO posts (title, slug, content, excerpt, category_id, read_time, status, style)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'modern')
+        INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 0)
     ");
-    
+
     $stmt->execute([
         $input['title'],
         $input['slug'],
         $input['content'],
         $input['excerpt'],
-        $categoryId,
+        $input['category'],
         $input['readTime'],
-        $status
+        $published
     ]);
-    
+
     $newId = $pdo->lastInsertId();
     
     echo json_encode([
