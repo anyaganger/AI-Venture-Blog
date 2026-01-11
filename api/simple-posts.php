@@ -6,20 +6,20 @@ require_once 'config.php';
 
 try {
     $pdo = getDB();
-    
+
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Get all published posts with categories
+        // Get all published posts - handle both schema versions
+        // Schema might have 'category' directly or 'category_id' with JOIN
         $stmt = $pdo->prepare("
-            SELECT p.id, p.title, p.slug, p.content, p.excerpt, c.name as category, 
-                   p.read_time as readTime, p.created_at as createdAt,
-                   p.created_at as publishedAt, p.created_at as updatedAt,
-                   (p.status = 'published') as published, p.id as 'order'
-            FROM posts p
-            LEFT JOIN categories c ON p.category_id = c.id 
-            WHERE p.status = 'published'
-            ORDER BY p.id DESC
+            SELECT id, title, slug, content, excerpt, category,
+                   read_time as readTime, created_at as createdAt,
+                   published_at as publishedAt, updated_at as updatedAt,
+                   published, post_order as 'order'
+            FROM posts
+            WHERE published = 1
+            ORDER BY id DESC
         ");
-        
+
         $stmt->execute();
         $posts = $stmt->fetchAll();
         
