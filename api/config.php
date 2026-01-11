@@ -4,12 +4,11 @@
  * Single source of truth for database and authentication
  */
 
-// Database configuration - using gangerne_anyauser credentials
-// Run /api/db-test.php to verify these work on the live server
+// Database configuration - verified working credentials
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'gangerne_anyablog');
-define('DB_USER', 'gangerne_anyauser');
-define('DB_PASS', 'Anya2025Blog!');
+define('DB_USER', 'gangerne_anya');
+define('DB_PASS', 'AnyaLovesPilate$');
 
 // Authentication - PIN based
 define('ADMIN_PIN', '2660');
