@@ -4,6 +4,47 @@
  */
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+header('Content-Type: application/json');
+
+// Quick force restore - bypass all other checks
+if (isset($_GET['action']) && $_GET['action'] === 'force') {
+    try {
+        $pdo = new PDO(
+            "mysql:host=localhost;dbname=gangerne_anyablog;charset=utf8mb4",
+            "gangerne_anya",
+            "AnyaLovesPilate$",
+            [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]
+        );
+
+        // Delete all posts
+        $pdo->query("DELETE FROM posts");
+
+        // Get categories
+        $cats = [];
+        foreach ($pdo->query("SELECT id, name FROM categories")->fetchAll() as $c) {
+            $cats[$c['id']] = $c['name'];
+        }
+
+        // Get and insert backup posts
+        $count = 0;
+        $errors = [];
+        foreach ($pdo->query("SELECT * FROM posts_backup")->fetchAll() as $i => $bp) {
+            $cat = $cats[$bp['category_id'] ?? 0] ?? 'AI & Machine Learning';
+            try {
+                $pdo->prepare("INSERT INTO posts (title, slug, content, excerpt, category, read_time, published, post_order) VALUES (?,?,?,?,?,?,1,0)")
+                    ->execute([$bp['title'], $bp['slug'], $bp['content'] ?? '', $bp['excerpt'] ?? '', $cat, $bp['read_time'] ?? 5]);
+                $count++;
+            } catch (PDOException $e) {
+                $errors[] = $bp['slug'] . ': ' . $e->getMessage();
+            }
+        }
+
+        echo json_encode(['success' => true, 'restored' => $count, 'errors' => $errors]);
+    } catch (PDOException $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
+    exit;
+}
 
 require_once 'config.php';
 
@@ -26,7 +67,7 @@ try {
     $stmt = $pdo->query("DESCRIBE posts");
     $postsStructure = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
-    // Force restore
+    // Old force restore (kept for reference)
     if (isset($_GET['action']) && $_GET['action'] === 'force') {
         $debug = ['step' => 'start'];
 
