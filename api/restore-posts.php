@@ -25,8 +25,8 @@ try {
 
     // Force restore - clear existing and reimport all
     if (isset($_GET['action']) && $_GET['action'] === 'force') {
-        // Clear existing posts
-        $pdo->query("TRUNCATE TABLE posts");
+        // Clear existing posts (DELETE instead of TRUNCATE for compatibility)
+        $pdo->prepare("DELETE FROM posts")->execute();
 
         // Get category names mapping
         $stmt = $pdo->query("SELECT id, name FROM categories");
