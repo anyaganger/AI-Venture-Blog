@@ -123,7 +123,27 @@
                                     </button>
                                 </li>
                                 <li>
-                                    <button 
+                                    <button
+                                        onclick="showSection('bio')"
+                                        class="w-full text-left px-3 py-2 rounded text-sm transition-colors nav-button hover:bg-muted"
+                                        data-section="bio"
+                                        data-testid="nav-bio"
+                                    >
+                                        Bio
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
+                                        onclick="showSection('footer')"
+                                        class="w-full text-left px-3 py-2 rounded text-sm transition-colors nav-button hover:bg-muted"
+                                        data-section="footer"
+                                        data-testid="nav-footer"
+                                    >
+                                        Footer Links
+                                    </button>
+                                </li>
+                                <li>
+                                    <button
                                         onclick="showSection('site-settings')"
                                         class="w-full text-left px-3 py-2 rounded text-sm transition-colors nav-button hover:bg-muted"
                                         data-section="site-settings"
@@ -305,6 +325,102 @@ Write your content in Markdown format..."
                                                 Cancel Edit
                                             </button>
                                         </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bio Section -->
+                        <div id="section-bio" class="admin-section hidden" data-testid="section-bio">
+                            <div class="bg-card rounded-lg luxury-shadow">
+                                <div class="p-6 border-b border-border">
+                                    <h2 class="text-xl font-medium">Edit Your Bio</h2>
+                                    <p class="text-sm text-muted-foreground mt-1">This appears on your bio page and blog sidebar</p>
+                                </div>
+                                <div class="p-6">
+                                    <form id="bio-form" class="space-y-6">
+                                        <div>
+                                            <label class="text-sm font-medium mb-2 block">Your Bio</label>
+                                            <textarea
+                                                id="bio_author_bio"
+                                                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm h-64"
+                                                placeholder="Write about yourself, your interests, accomplishments, and what you're passionate about..."
+                                            ></textarea>
+                                            <p class="text-xs text-muted-foreground mt-2">Use blank lines to separate paragraphs</p>
+                                        </div>
+                                        <div class="flex items-center space-x-4">
+                                            <button
+                                                type="submit"
+                                                class="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors"
+                                            >
+                                                Save Bio
+                                            </button>
+                                            <a href="../bio.html" target="_blank" class="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                                                Preview Bio Page &rarr;
+                                            </a>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Links Section -->
+                        <div id="section-footer" class="admin-section hidden" data-testid="section-footer">
+                            <div class="bg-card rounded-lg luxury-shadow">
+                                <div class="p-6 border-b border-border">
+                                    <h2 class="text-xl font-medium">Footer Links</h2>
+                                    <p class="text-sm text-muted-foreground mt-1">Manage the links that appear in your website footer</p>
+                                </div>
+                                <div class="p-6">
+                                    <form id="footer-form" class="space-y-6">
+                                        <div class="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="text-sm font-medium mb-2 block">LinkedIn URL</label>
+                                                <input
+                                                    type="url"
+                                                    id="footer_linkedin"
+                                                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                    placeholder="https://linkedin.com/in/..."
+                                                >
+                                            </div>
+                                            <div>
+                                                <label class="text-sm font-medium mb-2 block">Book Page URL</label>
+                                                <input
+                                                    type="url"
+                                                    id="footer_book_url"
+                                                    class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                    placeholder="https://anya.ganger.com/book/"
+                                                >
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="text-sm font-medium mb-2 block">Contact Email</label>
+                                            <input
+                                                type="email"
+                                                id="footer_contact_email"
+                                                class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                placeholder="ganger@wharton.upenn.edu"
+                                            >
+                                            <p class="text-xs text-muted-foreground mt-2">Messages from the contact form will be sent here</p>
+                                        </div>
+                                        <div class="pt-4 border-t border-border">
+                                            <h3 class="text-sm font-medium mb-4">Current Footer Preview</h3>
+                                            <div class="flex justify-center items-center space-x-8 py-4 bg-muted rounded-lg">
+                                                <span class="text-sm">LinkedIn</span>
+                                                <span class="text-muted-foreground">|</span>
+                                                <span class="text-sm">Bio</span>
+                                                <span class="text-muted-foreground">|</span>
+                                                <span class="text-sm">Contact</span>
+                                                <span class="text-muted-foreground">|</span>
+                                                <span class="text-sm">Book</span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="submit"
+                                            class="bg-primary text-primary-foreground px-6 py-2 rounded-md font-medium hover:bg-primary/90 transition-colors"
+                                        >
+                                            Save Footer Settings
+                                        </button>
                                     </form>
                                 </div>
                             </div>
@@ -539,24 +655,38 @@ Write your content in Markdown format..."
 
         async function loadSettings() {
             try {
-                // Load settings from database instead of localStorage
-                const response = await authenticatedFetch('/api/settings');
-                const settings = response.ok ? await response.json() : {
-                    'homepage_name': 'Anya Ganger',
-                    'homepage_tagline': 'AI & Venture Capital Explorer',
-                    'homepage_outreach_link': '',
-                    'blog_title': 'Venture X AI Insights',
-                    'blog_tagline': 'Exploring the intersection of AI and venture capital',
-                    'author_bio': 'AI and venture capital enthusiast exploring breakthrough technologies.',
-                    'author_linkedin': ''
-                };
-                
+                // Load settings from database
+                const response = await fetch(`${API_BASE}/api/settings.php`);
+                const settings = response.ok ? await response.json() : {};
+
+                // Populate site settings form
                 Object.keys(settings).forEach(key => {
                     const element = document.getElementById(key);
                     if (element) {
                         element.value = settings[key];
                     }
                 });
+
+                // Populate bio form
+                const bioField = document.getElementById('bio_author_bio');
+                if (bioField && settings.author_bio) {
+                    bioField.value = settings.author_bio;
+                }
+
+                // Populate footer form
+                const footerLinkedin = document.getElementById('footer_linkedin');
+                const footerBook = document.getElementById('footer_book_url');
+                const footerEmail = document.getElementById('footer_contact_email');
+
+                if (footerLinkedin && settings.footer_linkedin) {
+                    footerLinkedin.value = settings.footer_linkedin;
+                }
+                if (footerBook && settings.footer_book_url) {
+                    footerBook.value = settings.footer_book_url;
+                }
+                if (footerEmail && settings.contact_email) {
+                    footerEmail.value = settings.contact_email;
+                }
             } catch (error) {
                 console.log('Failed to load settings');
             }
@@ -564,20 +694,21 @@ Write your content in Markdown format..."
 
         document.getElementById('settings-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const settings = {};
-            
+
             // Get all form fields
             ['homepage_name', 'homepage_tagline', 'homepage_outreach_link', 'blog_title', 'blog_tagline', 'author_bio', 'author_linkedin'].forEach(field => {
-                settings[field] = document.getElementById(field).value;
+                const el = document.getElementById(field);
+                if (el) settings[field] = el.value;
             });
-            
+
             try {
-                const response = await authenticatedFetch('/api/admin/settings', {
+                const response = await authenticatedFetch('/api/settings.php', {
                     method: 'POST',
                     body: JSON.stringify(settings)
                 });
-                
+
                 if (response.ok) {
                     alert('Settings updated successfully!');
                 } else {
@@ -585,6 +716,56 @@ Write your content in Markdown format..."
                 }
             } catch (error) {
                 alert('Failed to update settings');
+            }
+        });
+
+        // Bio form handler
+        document.getElementById('bio-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const settings = {
+                author_bio: document.getElementById('bio_author_bio').value
+            };
+
+            try {
+                const response = await authenticatedFetch('/api/settings.php', {
+                    method: 'POST',
+                    body: JSON.stringify(settings)
+                });
+
+                if (response.ok) {
+                    alert('Bio updated successfully!');
+                } else {
+                    throw new Error('Failed to save bio');
+                }
+            } catch (error) {
+                alert('Failed to update bio');
+            }
+        });
+
+        // Footer form handler
+        document.getElementById('footer-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const settings = {
+                footer_linkedin: document.getElementById('footer_linkedin').value,
+                footer_book_url: document.getElementById('footer_book_url').value,
+                contact_email: document.getElementById('footer_contact_email').value
+            };
+
+            try {
+                const response = await authenticatedFetch('/api/settings.php', {
+                    method: 'POST',
+                    body: JSON.stringify(settings)
+                });
+
+                if (response.ok) {
+                    alert('Footer settings updated successfully!');
+                } else {
+                    throw new Error('Failed to save footer settings');
+                }
+            } catch (error) {
+                alert('Failed to update footer settings');
             }
         });
 
