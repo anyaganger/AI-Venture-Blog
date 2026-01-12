@@ -17,7 +17,7 @@ try {
                    published, post_order as 'order'
             FROM posts
             WHERE published = 1
-            ORDER BY published_at DESC, created_at DESC
+            ORDER BY COALESCE(published_at, created_at) DESC
         ");
 
         $stmt->execute();
