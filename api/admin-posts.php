@@ -23,13 +23,12 @@ try {
         case 'GET':
             // Get ALL posts for admin (including drafts)
             $stmt = $pdo->prepare("
-                SELECT p.id, p.title, p.slug, p.content, p.excerpt, c.name as category,
-                       p.read_time as readTime, p.created_at as createdAt,
-                       p.created_at as publishedAt, p.updated_at as updatedAt,
-                       (p.status = 'published') as published, p.id as 'order'
-                FROM posts p
-                LEFT JOIN categories c ON p.category_id = c.id
-                ORDER BY p.created_at DESC
+                SELECT id, title, slug, content, excerpt, category,
+                       read_time as readTime, created_at as createdAt,
+                       published_at as publishedAt, updated_at as updatedAt,
+                       published, post_order as 'order'
+                FROM posts
+                ORDER BY COALESCE(published_at, created_at) DESC
             ");
 
             $stmt->execute();
@@ -37,7 +36,7 @@ try {
 
             // Convert data types for frontend
             foreach ($posts as &$post) {
-                $post['published'] = (bool)$post['published'];
+                $post['published'] = ($post['published'] == 1);
                 $post['readTime'] = (int)$post['readTime'];
                 $post['order'] = (int)$post['order'];
                 $post['id'] = (string)$post['id'];
@@ -64,46 +63,28 @@ try {
             $updates = [];
             $params = [];
 
-            // Handle category separately to get category_id
-            if (array_key_exists('category', $input)) {
-                $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = ?");
-                $stmt->execute([$input['category']]);
-                $categoryRow = $stmt->fetch();
-
-                if (!$categoryRow) {
-                    // Create new category if it doesn't exist
-                    $slug = strtolower(str_replace(' ', '-', preg_replace('/[^A-Za-z0-9 -]/', '', $input['category'])));
-                    $stmt = $pdo->prepare("INSERT INTO categories (name, slug) VALUES (?, ?)");
-                    $stmt->execute([$input['category'], $slug]);
-                    $categoryId = $pdo->lastInsertId();
-                } else {
-                    $categoryId = $categoryRow['id'];
-                }
-
-                $updates[] = "category_id = ?";
-                $params[] = $categoryId;
-            }
-
-            // Handle regular fields
             $allowedFields = [
                 'title' => 'title',
                 'slug' => 'slug',
                 'content' => 'content',
                 'excerpt' => 'excerpt',
-                'readTime' => 'read_time'
+                'category' => 'category',
+                'readTime' => 'read_time',
+                'published' => 'published',
+                'publishedAt' => 'published_at',
+                'order' => 'post_order'
             ];
 
             foreach ($allowedFields as $inputKey => $dbColumn) {
                 if (array_key_exists($inputKey, $input)) {
                     $updates[] = "$dbColumn = ?";
-                    $params[] = $input[$inputKey];
+                    $value = $input[$inputKey];
+                    // Convert boolean to int for published
+                    if ($inputKey === 'published') {
+                        $value = $value ? 1 : 0;
+                    }
+                    $params[] = $value;
                 }
-            }
-
-            // Handle published status conversion
-            if (array_key_exists('published', $input)) {
-                $updates[] = "status = ?";
-                $params[] = $input['published'] ? 'published' : 'draft';
             }
 
             if (empty($updates)) {

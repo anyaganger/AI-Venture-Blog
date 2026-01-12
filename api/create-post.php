@@ -35,40 +35,38 @@ try {
 
     $pdo = getDB();
 
-    // Get or create category
-    $stmt = $pdo->prepare("SELECT id FROM categories WHERE name = ?");
-    $stmt->execute([$input['category']]);
-    $categoryRow = $stmt->fetch();
+    // Generate UUID for the new post
+    $postId = generateUUID();
 
-    if (!$categoryRow) {
-        // Create new category if it doesn't exist
-        $slug = strtolower(str_replace(' ', '-', preg_replace('/[^A-Za-z0-9 -]/', '', $input['category'])));
-        $stmt = $pdo->prepare("INSERT INTO categories (name, slug) VALUES (?, ?)");
-        $stmt->execute([$input['category'], $slug]);
-        $categoryId = $pdo->lastInsertId();
-    } else {
-        $categoryId = $categoryRow['id'];
+    // Create post with direct category name
+    $published = $input['published'] ? 1 : 0;
+
+    // Use provided date or default to current time
+    $publishedAt = null;
+    if (isset($input['publishedAt']) && !empty($input['publishedAt'])) {
+        $publishedAt = $input['publishedAt'];
+    } elseif ($published) {
+        $publishedAt = date('Y-m-d H:i:s');
     }
 
-    // Convert published boolean to status enum
-    $status = $input['published'] ? 'published' : 'draft';
-
     $stmt = $pdo->prepare("
-        INSERT INTO posts (title, slug, content, excerpt, category_id, read_time, status, style)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'modern')
+        INSERT INTO posts (id, title, slug, content, excerpt, category, read_time, published, published_at, post_order)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
     ");
 
     $stmt->execute([
+        $postId,
         $input['title'],
         $input['slug'],
         $input['content'],
         $input['excerpt'],
-        $categoryId,
+        $input['category'],
         $input['readTime'],
-        $status
+        $published,
+        $publishedAt
     ]);
 
-    $newId = $pdo->lastInsertId();
+    $newId = $postId;
     
     echo json_encode([
         'success' => true,
