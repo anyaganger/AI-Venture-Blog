@@ -151,7 +151,9 @@ try {
         // Already exists
     }
 
-    $pdo->commit();
+    if ($pdo->inTransaction()) {
+        $pdo->commit();
+    }
 
     // Step 8: Verify migration
     $stmt = $pdo->query("
