@@ -56,9 +56,18 @@ try {
     // Convert published boolean to status enum
     $status = $input['published'] ? 'published' : 'draft';
 
+    // Set published_at if provided, otherwise use current timestamp for published posts
+    $publishedAt = null;
+    if (isset($input['publishedAt']) && $input['publishedAt']) {
+        $publishedAt = $input['publishedAt'];
+    } elseif ($input['published']) {
+        // If publishing without explicit date, use current timestamp
+        $publishedAt = date('Y-m-d H:i:s');
+    }
+
     $stmt = $pdo->prepare("
-        INSERT INTO posts (id, title, slug, content, excerpt, category_id, read_time, status, style)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'modern')
+        INSERT INTO posts (id, title, slug, content, excerpt, category_id, read_time, status, style, published_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'modern', ?)
     ");
 
     $stmt->execute([
@@ -69,7 +78,8 @@ try {
         $input['excerpt'],
         $categoryId,
         $input['readTime'],
-        $status
+        $status,
+        $publishedAt
     ]);
 
     $newId = $postId;

@@ -151,13 +151,32 @@ try {
         // Already exists
     }
 
+    // Step 8: Fix NULL published_at dates for published posts
+    $stmt = $pdo->query("
+        SELECT COUNT(*) as count
+        FROM posts
+        WHERE status = 'published' AND published_at IS NULL
+    ");
+    $nullCount = $stmt->fetch()['count'];
+
+    if ($nullCount > 0) {
+        $pdo->exec("
+            UPDATE posts
+            SET published_at = created_at
+            WHERE status = 'published' AND published_at IS NULL
+        ");
+        $results[] = "✓ Fixed $nullCount posts with NULL published_at dates";
+    } else {
+        $results[] = "• All published posts have published_at dates";
+    }
+
     if ($pdo->inTransaction()) {
         $pdo->commit();
     }
 
-    // Step 8: Verify migration
+    // Step 9: Verify migration
     $stmt = $pdo->query("
-        SELECT p.id, p.title, c.name as category, p.status, p.style
+        SELECT p.id, p.title, c.name as category, p.status, p.style, p.published_at
         FROM posts p
         LEFT JOIN categories c ON p.category_id = c.id
     ");

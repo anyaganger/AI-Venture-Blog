@@ -18,8 +18,8 @@ try {
                 $stmt = $db->prepare("
                     SELECT p.id, p.title, p.slug, p.content, p.excerpt, c.name as category,
                            p.read_time as readTime, (p.status = 'published') as published,
-                           p.created_at as createdAt, p.created_at as publishedAt,
-                           p.created_at as updatedAt, p.id as `order`
+                           p.created_at as createdAt, p.published_at as publishedAt,
+                           p.updated_at as updatedAt, p.post_order as `order`
                     FROM posts p
                     LEFT JOIN categories c ON p.category_id = c.id
                     ORDER BY p.created_at DESC
@@ -29,8 +29,8 @@ try {
                 $stmt = $db->prepare("
                     SELECT p.id, p.title, p.slug, p.content, p.excerpt, c.name as category,
                            p.read_time as readTime, (p.status = 'published') as published,
-                           p.created_at as createdAt, p.created_at as publishedAt,
-                           p.created_at as updatedAt, p.id as `order`
+                           p.created_at as createdAt, p.published_at as publishedAt,
+                           p.updated_at as updatedAt, p.post_order as `order`
                     FROM posts p
                     LEFT JOIN categories c ON p.category_id = c.id
                     WHERE p.status = 'published'

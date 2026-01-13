@@ -25,8 +25,8 @@ try {
             $stmt = $pdo->prepare("
                 SELECT p.id, p.title, p.slug, p.content, p.excerpt, c.name as category,
                        p.read_time as readTime, p.created_at as createdAt,
-                       p.created_at as publishedAt, p.updated_at as updatedAt,
-                       (p.status = 'published') as published, p.id as 'order'
+                       p.published_at as publishedAt, p.updated_at as updatedAt,
+                       (p.status = 'published') as published, p.post_order as 'order'
                 FROM posts p
                 LEFT JOIN categories c ON p.category_id = c.id
                 ORDER BY p.created_at DESC
@@ -104,6 +104,16 @@ try {
             if (array_key_exists('published', $input)) {
                 $updates[] = "status = ?";
                 $params[] = $input['published'] ? 'published' : 'draft';
+            }
+
+            // Handle publishedAt date
+            if (array_key_exists('publishedAt', $input)) {
+                if ($input['publishedAt']) {
+                    $updates[] = "published_at = ?";
+                    $params[] = $input['publishedAt'];
+                } else {
+                    $updates[] = "published_at = NULL";
+                }
             }
 
             if (empty($updates)) {
