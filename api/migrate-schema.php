@@ -28,16 +28,29 @@ try {
 
     $results = [];
 
-    // Step 1: Create categories table if it doesn't exist
-    $pdo->exec("
-        CREATE TABLE IF NOT EXISTS categories (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(255) NOT NULL UNIQUE,
-            slug VARCHAR(255) NOT NULL UNIQUE,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-    ");
-    $results[] = "✓ Categories table created/verified";
+    // Step 1: Check if categories table exists and has correct structure
+    try {
+        $stmt = $pdo->query("DESCRIBE categories");
+        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        // Add slug column if it doesn't exist
+        if (!in_array('slug', $columns)) {
+            $pdo->exec("ALTER TABLE categories ADD COLUMN slug VARCHAR(255) NULL");
+            $results[] = "✓ Added slug column to categories table";
+        }
+        $results[] = "✓ Categories table verified";
+    } catch (PDOException $e) {
+        // Table doesn't exist, create it
+        $pdo->exec("
+            CREATE TABLE categories (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL UNIQUE,
+                slug VARCHAR(255) NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+        ");
+        $results[] = "✓ Categories table created";
+    }
 
     // Step 2: Get all unique categories from posts
     $stmt = $pdo->query("SELECT DISTINCT category FROM posts WHERE category IS NOT NULL AND category != ''");
