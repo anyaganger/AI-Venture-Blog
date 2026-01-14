@@ -211,3 +211,41 @@ function generate_meta_tags($title, $description, $image = null) {
     
     return implode("\n    ", $meta_tags);
 }
+
+// Settings helper - fetch site settings from API
+function get_site_settings() {
+    static $settings = null;
+
+    if ($settings === null) {
+        // Try to fetch from API
+        $url = 'https://anya.ganger.com/api/settings.php';
+        $context = stream_context_create([
+            'http' => [
+                'timeout' => 2, // 2 second timeout
+                'ignore_errors' => true
+            ]
+        ]);
+
+        $response = @file_get_contents($url, false, $context);
+
+        if ($response) {
+            $settings = json_decode($response, true);
+        }
+
+        // Fallback to defaults if API fails
+        if (!$settings) {
+            $settings = [
+                'blog_title' => 'Venture X AI Insights',
+                'blog_tagline' => 'Exploring the intersection of AI and venture capital',
+                'blog_hero_title' => 'Venture × AI',
+                'blog_hero_subtitle' => 'Where capital meets intelligence',
+                'blog_hero_description' => 'Decoding the future of venture capital in the age of artificial intelligence.',
+                'blog_section_title' => 'Latest Insights',
+                'author_name' => 'Anya Ganger',
+                'author_linkedin' => 'https://www.linkedin.com/in/anya-ganger-410069234/'
+            ];
+        }
+    }
+
+    return $settings;
+}

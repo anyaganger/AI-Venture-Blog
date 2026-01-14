@@ -1,13 +1,14 @@
 <?php
 require_once 'includes/functions.php';
 
-// Get front page content
+// Get settings and content
+$settings = get_site_settings();
 $front_page = get_front_page_content();
 $posts = get_all_posts('published');
 
 // SEO
-$page_title = SITE_NAME;
-$page_description = SITE_TAGLINE;
+$page_title = $settings['blog_title'] ?? SITE_NAME;
+$page_description = $settings['blog_tagline'] ?? SITE_TAGLINE;
 $page_image = $front_page['profile_picture'] ?? null;
 ?>
 <!DOCTYPE html>
@@ -26,22 +27,21 @@ $page_image = $front_page['profile_picture'] ?? null;
     <header class="hero-header">
         <div class="hero-container">
             <div class="hero-content">
-                <h1 class="hero-title">Venture <span class="accent-x">×</span> AI</h1>
-                <p class="hero-subtitle">Where capital meets intelligence</p>
+                <h1 class="hero-title"><?php echo htmlspecialchars($settings['blog_hero_title'] ?? 'Venture × AI'); ?></h1>
+                <p class="hero-subtitle"><?php echo htmlspecialchars($settings['blog_hero_subtitle'] ?? 'Where capital meets intelligence'); ?></p>
                 <div class="hero-bio">
-                    <p>Decoding the future of venture capital in the age of artificial intelligence. 
-                    Strategic insights for founders, investors, and the brilliantly ambitious.</p>
+                    <p><?php echo htmlspecialchars($settings['blog_hero_description'] ?? 'Decoding the future of venture capital in the age of artificial intelligence.'); ?></p>
                 </div>
                 <div class="hero-cta">
-                    <a href="<?php echo htmlspecialchars($front_page['linkedin_url']); ?>" 
-                       target="_blank" 
-                       rel="noopener noreferrer" 
+                    <a href="<?php echo htmlspecialchars($settings['author_linkedin'] ?? $front_page['linkedin_url']); ?>"
+                       target="_blank"
+                       rel="noopener noreferrer"
                        class="hero-linkedin">Connect on LinkedIn →</a>
                 </div>
             </div>
             <div class="hero-visual">
-                <img src="assets/images/headshot.jpeg" 
-                     alt="Anya Ganger" 
+                <img src="assets/images/headshot.jpeg"
+                     alt="<?php echo htmlspecialchars($settings['author_name'] ?? 'Anya Ganger'); ?>"
                      class="hero-image">
             </div>
         </div>
@@ -51,7 +51,7 @@ $page_image = $front_page['profile_picture'] ?? null;
         <main class="main-content">
 
             <section class="posts-section">
-                <h2 class="section-title">Latest Insights</h2>
+                <h2 class="section-title"><?php echo htmlspecialchars($settings['blog_section_title'] ?? 'Latest Insights'); ?></h2>
                 <div class="posts-grid">
                     <?php foreach ($posts as $post): ?>
                         <article class="post-card">
@@ -71,7 +71,7 @@ $page_image = $front_page['profile_picture'] ?? null;
         </main>
 
         <footer class="site-footer">
-            <p>&copy; <?php echo date('Y'); ?> <?php echo SITE_NAME; ?>. All rights reserved.</p>
+            <p>&copy; <?php echo date('Y'); ?> <?php echo htmlspecialchars($settings['blog_title'] ?? SITE_NAME); ?>. All rights reserved.</p>
         </footer>
     </div>
     <script src="../assets/tracking.js" async></script>

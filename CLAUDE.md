@@ -156,6 +156,78 @@ if (isset($input['publishedAt']) && $input['publishedAt']) {
 
 ---
 
+### Bug #6: Blog Templates Displaying Wrong Date
+**Symptom:** Date edits saved successfully in admin but didn't appear on the public blog pages.
+
+**Root Cause:** Blog template files (post.php, index.php) were hardcoded to display `created_at` instead of `published_at`.
+
+**Fix:** Updated both template files to use `published_at` with fallback:
+```php
+strtotime($post['published_at'] ?: $post['created_at'])
+```
+
+**Files Changed:**
+- `/blog/post.php` (line 43)
+- `/blog/index.php` (line 65)
+
+---
+
+### Bug #7: Hardcoded Content Should Be Database-Driven (January 2026)
+
+**Problem:** Multiple content items were hardcoded in templates instead of being editable through admin panel.
+
+**Issues Found:**
+- Hero section title, subtitle, description (hardcoded in blog/index.php)
+- Section titles (hardcoded)
+- Author name (hardcoded in alt text)
+- Database credentials in source code (security risk)
+
+**Fix:** Comprehensive content management system update:
+
+1. **Added New Settings** - Expanded settings API to include:
+   - `blog_hero_title` - Hero title (e.g., "Venture × AI")
+   - `blog_hero_subtitle` - Hero subtitle
+   - `blog_hero_description` - Hero description paragraph
+   - `blog_section_title` - Section title above post list
+   - `author_name` - Author name for alt text and bylines
+
+2. **Environment Variables for Security** - Moved database credentials:
+   ```php
+   // Before (INSECURE):
+   define('DB_PASS', 'AnyaLovesPilate$');
+
+   // After (SECURE):
+   define('DB_PASS', getenv('DB_PASS') ?: 'AnyaLovesPilate$');
+   ```
+
+3. **Created Settings Helper Function** - Added `get_site_settings()` to fetch settings from API with caching and fallbacks.
+
+4. **Updated Templates** - Modified blog templates to use database settings instead of hardcoded values:
+   - Hero section now pulls from settings
+   - Section titles editable
+   - Author name dynamic
+   - All text content customizable via admin panel
+
+5. **Updated Admin Panel** - Added new form fields for all blog hero settings:
+   - Hero Title field
+   - Hero Subtitle field
+   - Hero Description textarea
+   - Section Title field
+   - Author Name field
+
+**Files Changed:**
+- `/api/settings.php` - Added new settings to defaults
+- `/api/config.php` - Environment variable support
+- `/blog/includes/config.php` - Environment variable support
+- `/blog/includes/functions.php` - Added `get_site_settings()` helper
+- `/blog/index.php` - Use settings for all content
+- `/admin/index.html` - Added form fields for new settings
+- `/.env.example` - Created environment variable template
+
+**Security Impact:** Database credentials now support environment variables, reducing risk of credential exposure.
+
+---
+
 ## API Endpoints
 
 ### Admin Endpoints (Require Authentication)

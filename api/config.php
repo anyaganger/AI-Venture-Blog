@@ -4,11 +4,12 @@
  * Single source of truth for database and authentication
  */
 
-// Database configuration - verified working credentials
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'gangerne_anyablog');
-define('DB_USER', 'gangerne_anya');
-define('DB_PASS', 'AnyaLovesPilate$');
+// Database configuration - use environment variables for security
+// Fallback to hardcoded values for compatibility (but should set env vars in production)
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('DB_NAME') ?: 'gangerne_anyablog');
+define('DB_USER', getenv('DB_USER') ?: 'gangerne_anya');
+define('DB_PASS', getenv('DB_PASS') ?: 'AnyaLovesPilate$');
 
 // Authentication - PIN based
 define('ADMIN_PIN', '2660');

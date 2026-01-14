@@ -509,6 +509,59 @@ Write your content in Markdown format..."
                                         </div>
 
                                         <div class="pt-6 mt-6 border-t border-border">
+                                            <h3 class="text-lg font-medium mb-4">Blog Hero Section</h3>
+                                            <p class="text-sm text-muted-foreground mb-4">Customize the hero section on your blog homepage.</p>
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label class="text-sm font-medium mb-2 block">Hero Title</label>
+                                                    <input
+                                                        type="text"
+                                                        id="blog_hero_title"
+                                                        class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                        placeholder="Venture × AI"
+                                                    >
+                                                </div>
+                                                <div>
+                                                    <label class="text-sm font-medium mb-2 block">Hero Subtitle</label>
+                                                    <input
+                                                        type="text"
+                                                        id="blog_hero_subtitle"
+                                                        class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                        placeholder="Where capital meets intelligence"
+                                                    >
+                                                </div>
+                                                <div>
+                                                    <label class="text-sm font-medium mb-2 block">Hero Description</label>
+                                                    <textarea
+                                                        id="blog_hero_description"
+                                                        class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm h-24"
+                                                        placeholder="Decoding the future of venture capital..."
+                                                    ></textarea>
+                                                </div>
+                                                <div>
+                                                    <label class="text-sm font-medium mb-2 block">Section Title</label>
+                                                    <input
+                                                        type="text"
+                                                        id="blog_section_title"
+                                                        class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                        placeholder="Latest Insights"
+                                                    >
+                                                    <p class="text-xs text-muted-foreground mt-1">Title above the blog post list</p>
+                                                </div>
+                                                <div>
+                                                    <label class="text-sm font-medium mb-2 block">Author Name</label>
+                                                    <input
+                                                        type="text"
+                                                        id="author_name"
+                                                        class="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+                                                        placeholder="Anya Ganger"
+                                                    >
+                                                    <p class="text-xs text-muted-foreground mt-1">Your name as displayed on the blog</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="pt-6 mt-6 border-t border-border">
                                             <h3 class="text-lg font-medium mb-4">Typography</h3>
                                             <p class="text-sm text-muted-foreground mb-4">Choose fonts for your site. Changes apply to all pages.</p>
                                             <div class="grid md:grid-cols-2 gap-4">
@@ -1028,7 +1081,7 @@ Write your content in Markdown format..."
             const settings = {};
 
             // Get all form fields including fonts
-            ['homepage_name', 'homepage_tagline', 'homepage_outreach_link', 'blog_title', 'blog_tagline', 'author_bio', 'author_linkedin', 'font_body', 'font_heading'].forEach(field => {
+            ['homepage_name', 'homepage_tagline', 'homepage_outreach_link', 'blog_title', 'blog_tagline', 'blog_hero_title', 'blog_hero_subtitle', 'blog_hero_description', 'blog_section_title', 'author_name', 'author_bio', 'author_linkedin', 'font_body', 'font_heading'].forEach(field => {
                 const el = document.getElementById(field);
                 if (el) settings[field] = el.value;
             });
