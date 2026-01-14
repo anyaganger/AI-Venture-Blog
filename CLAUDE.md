@@ -507,6 +507,118 @@ curl https://anya.ganger.com/api/migrate-schema.php
 
 **Impact:** Blog post editing now works correctly. Dates save properly and display correctly.
 
+### 2026-01-13 - Hardcoded Content Made Database-Driven
+**Commit:** 521b540
+**Summary:** Eliminated all hardcoded content and added security improvements
+
+**Changes:**
+- Added 5 new settings (blog hero section, author name, etc.)
+- Environment variable support for database credentials
+- Created get_site_settings() helper function
+- Updated all templates to use database settings
+- Enhanced admin panel with blog hero section form
+- Created .env.example template
+
+**Files Modified:**
+- .env.example (new)
+- api/settings.php
+- api/config.php
+- blog/includes/config.php
+- blog/includes/functions.php
+- blog/index.php
+- admin/index.html
+- CLAUDE.md
+
+**Impact:** All blog content now editable via admin panel. No code changes needed for content updates. Improved security for credential management.
+
+---
+
+## Development Best Practices
+
+### Preventing Hardcoded Content
+
+**ALWAYS CHECK BEFORE HARDCODING:**
+
+Before adding any text, URLs, or configuration values directly in code, ask:
+1. **Will this ever change?** → Use settings API
+2. **Is this user-specific?** → Use settings API
+3. **Is this sensitive data?** → Use environment variables
+4. **Is this configuration?** → Use settings API or environment variables
+
+**WHAT SHOULD BE IN SETTINGS API:**
+- Site titles, taglines, descriptions
+- Author information (name, bio, social links)
+- Section titles and labels
+- Footer content
+- Contact information
+- Font choices
+- Any text visible to users
+
+**WHAT SHOULD BE IN ENVIRONMENT VARIABLES:**
+- Database credentials
+- API keys (reCAPTCHA, email service, etc.)
+- Secret tokens
+- Third-party service credentials
+
+**WHAT CAN BE HARDCODED:**
+- HTML structure and CSS classes
+- JavaScript logic
+- File paths (relative)
+- Error message templates
+- Default fallback values (with settings override)
+
+**HOW TO ADD NEW SETTINGS:**
+
+1. Add to `/api/settings.php` defaults array:
+```php
+$defaults = [
+    // ... existing ...
+    'new_setting_name' => 'default value',
+];
+```
+
+2. Add form field in `/admin/index.html`:
+```html
+<input type="text" id="new_setting_name" />
+```
+
+3. Add to save array in admin/index.html (around line 1084):
+```javascript
+['existing_fields', 'new_setting_name'].forEach(field => {
+```
+
+4. Use in templates:
+```php
+$settings = get_site_settings();
+echo htmlspecialchars($settings['new_setting_name']);
+```
+
+**COMMON MISTAKES TO AVOID:**
+- ❌ Hardcoding "Anya Ganger" in multiple places
+- ❌ Putting social media URLs in HTML
+- ❌ Writing site taglines directly in templates
+- ❌ Storing database passwords in config files only
+- ❌ Using inline text instead of settings variables
+
+**CORRECT APPROACH:**
+- ✅ Store once in settings API
+- ✅ Reference via `$settings['key']`
+- ✅ Edit via admin panel
+- ✅ Keep DRY (Don't Repeat Yourself)
+
+### Code Review Checklist
+
+Before committing code, verify:
+- [ ] No hardcoded text that might change
+- [ ] No credentials in source code
+- [ ] All user-facing text uses settings
+- [ ] Environment variables used for secrets
+- [ ] New settings added to admin panel
+- [ ] Fallback values provided for settings
+- [ ] HTML properly escaped (`htmlspecialchars()`)
+
+---
+
 ## Future Enhancements
 
 ### Short Term
