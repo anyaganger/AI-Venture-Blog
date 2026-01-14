@@ -62,7 +62,7 @@ $page_image = $front_page['profile_picture'] ?? null;
                             <p class="post-excerpt"><?php echo htmlspecialchars($post['excerpt']); ?></p>
                             <div class="post-meta">
                                 <span class="read-time"><?php echo $post['read_time']; ?> min read</span>
-                                <span class="post-date"><?php echo date('M d, Y', strtotime($post['created_at'])); ?></span>
+                                <span class="post-date"><?php echo date('M d, Y', strtotime($post['published_at'] ?: $post['created_at'])); ?></span>
                             </div>
                         </article>
                     <?php endforeach; ?>

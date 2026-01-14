@@ -40,7 +40,7 @@ $page_description = $post['excerpt'];
             <a href="<?php echo SITE_URL; ?>" class="back-link">← Back to home</a>
             <div class="post-meta-header">
                 <span class="post-category"><?php echo htmlspecialchars($post['category_name']); ?></span>
-                <span class="post-date"><?php echo date('F d, Y', strtotime($post['created_at'])); ?></span>
+                <span class="post-date"><?php echo date('F d, Y', strtotime($post['published_at'] ?: $post['created_at'])); ?></span>
                 <span class="read-time"><?php echo $post['read_time']; ?> min read</span>
             </div>
             <h1 class="post-title"><?php echo htmlspecialchars($post['title']); ?></h1>
