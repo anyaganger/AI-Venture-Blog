@@ -41,9 +41,14 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 // Verify reCAPTCHA
-// Note: Using the test key 6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI which always passes
-// For production, replace with your own secret key
-$recaptchaSecret = '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe'; // Test secret key
+// CRITICAL: Set RECAPTCHA_SECRET environment variable in production!
+// Get keys from: https://www.google.com/recaptcha/admin
+$recaptchaSecret = getenv('RECAPTCHA_SECRET') ?: '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+
+// WARNING: Using test key (always passes) - SET ENVIRONMENT VARIABLE!
+if ($recaptchaSecret === '6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe') {
+    error_log('WARNING: Using test reCAPTCHA key. Set RECAPTCHA_SECRET environment variable!');
+}
 
 $recaptchaUrl = 'https://www.google.com/recaptcha/api/siteverify';
 $recaptchaData = [

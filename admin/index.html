@@ -776,6 +776,14 @@ Write your content in Markdown format..."
             }
         });
 
+        // Security: HTML escape function to prevent XSS
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            const div = document.createElement('div');
+            div.textContent = unsafe;
+            return div.innerHTML;
+        }
+
         function showDashboard() {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('admin-dashboard').classList.remove('hidden');
@@ -854,15 +862,15 @@ Write your content in Markdown format..."
                     recentPostsDiv.innerHTML = posts.slice(0, 5).map(post => `
                         <div class="flex items-center justify-between py-3 border-b border-border last:border-b-0">
                             <div>
-                                <h3 class="font-medium">${post.title}</h3>
+                                <h3 class="font-medium">${escapeHtml(post.title)}</h3>
                                 <p class="text-sm text-muted-foreground">
-                                    ${post.published ? 'Published' : 'Draft'} • ${post.category}
+                                    ${post.published ? 'Published' : 'Draft'} • ${escapeHtml(post.category)}
                                 </p>
                             </div>
-                            <button 
+                            <button
                                 class="text-sm px-3 py-1 hover:bg-muted rounded transition-colors"
-                                data-testid="button-edit-${post.id}"
-                                onclick="editPost('${post.id}')"
+                                data-testid="button-edit-${escapeHtml(post.id)}"
+                                onclick="editPost('${escapeHtml(post.id)}')"
                             >
                                 Edit
                             </button>
@@ -1352,27 +1360,27 @@ Write your content in Markdown format..."
                     postsListDiv.innerHTML = `
                         <div class="space-y-4">
                             ${posts.map(post => {
-                                const dateText = post.publishedAt 
+                                const dateText = post.publishedAt
                                     ? new Date(post.publishedAt).toLocaleDateString()
                                     : (post.createdAt ? new Date(post.createdAt).toLocaleDateString() : 'No date set');
                                 return `
                                     <div class="flex items-center justify-between p-4 border border-border rounded-lg">
                                         <div class="flex-1">
-                                            <h3 class="font-medium">${post.title}</h3>
+                                            <h3 class="font-medium">${escapeHtml(post.title)}</h3>
                                             <p class="text-sm text-muted-foreground mt-1">
-                                                ${post.published ? 'Published' : 'Draft'} • ${post.category} • ${dateText}
+                                                ${post.published ? 'Published' : 'Draft'} • ${escapeHtml(post.category)} • ${escapeHtml(dateText)}
                                             </p>
-                                            <p class="text-sm text-muted-foreground mt-1 max-w-2xl">${post.excerpt}</p>
+                                            <p class="text-sm text-muted-foreground mt-1 max-w-2xl">${escapeHtml(post.excerpt)}</p>
                                         </div>
                                         <div class="flex space-x-2 ml-4">
-                                            <button 
-                                                onclick="editPost('${post.id}')"
+                                            <button
+                                                onclick="editPost('${escapeHtml(post.id)}')"
                                                 class="text-sm px-3 py-1 hover:bg-muted rounded transition-colors border border-input"
                                             >
                                                 Edit
                                             </button>
-                                            <button 
-                                                onclick="deletePost('${post.id}')"
+                                            <button
+                                                onclick="deletePost('${escapeHtml(post.id)}')"
                                                 class="text-sm px-3 py-1 hover:bg-destructive hover:text-destructive-foreground rounded transition-colors border border-input text-destructive"
                                             >
                                                 Delete

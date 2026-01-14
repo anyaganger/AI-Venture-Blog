@@ -39,6 +39,9 @@ try {
 
     switch ($method) {
         case 'GET':
+            // Require authentication to view settings
+            checkAuth();
+
             // Get all settings as key-value pairs
             $stmt = $db->prepare("SELECT setting_key, setting_value FROM site_settings");
             $stmt->execute();

@@ -531,6 +531,52 @@ curl https://anya.ganger.com/api/migrate-schema.php
 
 **Impact:** All blog content now editable via admin panel. No code changes needed for content updates. Improved security for credential management.
 
+### 2026-01-13 - Critical Security Fixes
+**Commit:** (pending)
+**Summary:** Fixed all critical security vulnerabilities
+
+**Security Fixes:**
+
+1. **Settings API Authentication** - Added `checkAuth()` to GET endpoint
+   - **Problem:** Anyone could view all settings (email, LinkedIn, etc.) without authentication
+   - **Fix:** Require authentication for all settings access
+   - **File:** `/api/settings.php` (line 42-43)
+
+2. **Rate Limiting on Auth** - Implemented 5 attempts per 15 minutes
+   - **Problem:** No protection against brute force attacks on 4-digit PIN
+   - **Fix:** Track failed login attempts by IP, lock out after 5 failures for 15 minutes
+   - **Functions:** `checkRateLimit()`, `recordFailedAttempt()`, `clearRateLimit()`
+   - **Files:** `/api/config.php` (lines 135-207), `/api/auth.php` (lines 25-55)
+
+3. **reCAPTCHA Environment Variables** - Support for production keys
+   - **Problem:** Test reCAPTCHA key (always passes) in production
+   - **Fix:** Environment variable support with clear warning when using test key
+   - **File:** `/api/contact.php` (lines 43-51)
+   - **Action Required:** Set `RECAPTCHA_SECRET` environment variable
+
+4. **XSS Prevention in Admin Panel** - Escaped all user-generated content
+   - **Problem:** Post titles/excerpts with `<script>` tags execute in admin panel
+   - **Fix:** Added `escapeHtml()` function and escaped all innerHTML insertions
+   - **Function:** `escapeHtml()` (line 779-785)
+   - **Files:** `/admin/index.html` (lines 865, 867, 872-873, 1369, 1371, 1373, 1377, 1383)
+
+**Files Modified:**
+- api/settings.php
+- api/config.php
+- api/auth.php
+- api/contact.php
+- admin/index.html
+
+**Impact:**
+- ✓ Settings data now protected from unauthorized access
+- ✓ Brute force attacks now prevented with rate limiting
+- ✓ Contact form ready for production reCAPTCHA keys
+- ✓ XSS attacks prevented in admin panel
+
+**Remaining Action Items:**
+1. Set environment variable: `RECAPTCHA_SECRET` (get keys from https://www.google.com/recaptcha/admin)
+2. Optional: Set all environment variables from `.env.example`
+
 ---
 
 ## Development Best Practices

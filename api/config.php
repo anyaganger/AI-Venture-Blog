@@ -131,4 +131,78 @@ function generateUUID() {
         mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
     );
 }
+
+// Rate limiting for login attempts
+function checkRateLimit($ip) {
+    $rateLimitFile = sys_get_temp_dir() . '/anya_rate_limit.json';
+    $maxAttempts = 5;
+    $lockoutTime = 900; // 15 minutes in seconds
+
+    // Load existing attempts
+    $attempts = [];
+    if (file_exists($rateLimitFile)) {
+        $attempts = json_decode(file_get_contents($rateLimitFile), true) ?: [];
+    }
+
+    // Clean old attempts (older than lockout time)
+    $attempts = array_filter($attempts, function($attempt) use ($lockoutTime) {
+        return $attempt['time'] > (time() - $lockoutTime);
+    });
+
+    // Check if IP is locked out
+    $ipAttempts = array_filter($attempts, function($attempt) use ($ip) {
+        return $attempt['ip'] === $ip;
+    });
+
+    if (count($ipAttempts) >= $maxAttempts) {
+        // Calculate time remaining
+        $oldestAttempt = min(array_column($ipAttempts, 'time'));
+        $timeRemaining = $lockoutTime - (time() - $oldestAttempt);
+
+        http_response_code(429);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Too many failed attempts. Please try again in ' . ceil($timeRemaining / 60) . ' minutes.'
+        ]);
+        exit();
+    }
+
+    return true;
+}
+
+// Record failed login attempt
+function recordFailedAttempt($ip) {
+    $rateLimitFile = sys_get_temp_dir() . '/anya_rate_limit.json';
+
+    // Load existing attempts
+    $attempts = [];
+    if (file_exists($rateLimitFile)) {
+        $attempts = json_decode(file_get_contents($rateLimitFile), true) ?: [];
+    }
+
+    // Add new attempt
+    $attempts[] = [
+        'ip' => $ip,
+        'time' => time()
+    ];
+
+    // Save attempts
+    file_put_contents($rateLimitFile, json_encode($attempts));
+}
+
+// Clear rate limit for IP on successful login
+function clearRateLimit($ip) {
+    $rateLimitFile = sys_get_temp_dir() . '/anya_rate_limit.json';
+
+    if (file_exists($rateLimitFile)) {
+        $attempts = json_decode(file_get_contents($rateLimitFile), true) ?: [];
+
+        // Remove attempts from this IP
+        $attempts = array_filter($attempts, function($attempt) use ($ip) {
+            return $attempt['ip'] !== $ip;
+        });
+
+        file_put_contents($rateLimitFile, json_encode(array_values($attempts)));
+    }
+}
 ?>

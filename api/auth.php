@@ -22,6 +22,12 @@ if (empty($action)) {
 
 try {
     if ($method === 'POST' && $action === 'login') {
+        // Get client IP
+        $clientIp = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+
+        // Check rate limit BEFORE processing login
+        checkRateLimit($clientIp);
+
         $input = json_decode(file_get_contents('php://input'), true);
 
         // Support both PIN-only and username/password (legacy)
@@ -31,6 +37,9 @@ try {
         $token = verifyPin($pin);
 
         if ($token) {
+            // Successful login - clear rate limit for this IP
+            clearRateLimit($clientIp);
+
             $expiresAt = date('c', strtotime('+24 hours'));
             echo json_encode([
                 'success' => true,
@@ -38,6 +47,9 @@ try {
                 'expiresAt' => $expiresAt
             ]);
         } else {
+            // Failed login - record attempt
+            recordFailedAttempt($clientIp);
+
             http_response_code(401);
             echo json_encode(['success' => false, 'message' => 'Invalid PIN']);
         }
